@@ -1,0 +1,211 @@
+---
+title: "Introduction to Health Association Analysis for Movement Behaviour Data"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Introduction to Health Association Analysis for Movement Behaviour Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+In this tutorial, we will go through a basic health association analysis using movement behaviour data.
+
+As well as external packages, we'll use some helper functions we've prepared previously. If you want to modify them, you can find them on the reference page. 
+
+#  Load in data¶
+First we will load required packages, and the data we already prepared.
+
+```{r load-packages}
+# First we need to install packages that aren't already present. 
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(devtools, ggtern, ggplot2, reshape2, data.table)
+library(week2DataChallenge)
+
+# We then load the data prepared in the last tutorial. 
+dAll <- data.frame(fread("J:/data_and_prep_utilities/59070_application/ukb-new-hes-feb.csv")) #ukb-data-challenge.csv"))# Substitute with the correct path! 
+```
+
+#  Describe and explore the data
+## Tables to describe the data
+The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season). It does two-way analysis of variance, adjusted for the variables listed as confounder columns.
+
+You might think more about the distribution of some of the accelerometry-derived variables - for some, ANOVA may not be the most appropriate way to test for difference. But it's good for a first description!
+
+TROUBLESHOOTING: if you change some of the confounders you use, and you have a categorical variable with two categories, you need to add dAll$category <- as.factor(dAll$category) to the code somewhere. Otherwise, this code won't cope with the variable.
+
+```{r final-prep}
+dAll$sex <- as.factor(dAll$sex)
+dAll$ethnicity <- as.factor(dAll$ethnicity)
+dAll$smoking <- as.factor(dAll$smoking)
+dAll$alcohol <- as.factor(dAll$alcohol)
+
+# FOR REMOVAL
+dAll$age_entry_years <- dAll$age_entry/365.25
+dAll$broadAgeGroup <- cut(dAll$age_entry_years, breaks = c(40, 50, 60, 70, 80 ), labels = c("40-49", "50-59", "60-69", "70-79"))
+```
+
+```{r table}
+# specify groups (i.e. major row blocks)
+groups <-  c("broadAgeGroup", "sex") # Fill this in with groups you want to look at
+# specify accelerometer outcomes (i.e. column headings)
+outcomeCols <- c( "acc.overall.avg", "MVPA") # Fill this in with a list of outcomes you want to look at
+
+# specify two-way analysis of variance confounder columns
+confounderCols <- c("broadAgeGroup", "sex", "ethnicity", "smoking", "alcohol") # Fill this in with what 
+#  you want to adjust for when running the ANOVA
+
+# specify output file name
+outHTML<-'table1.html'
+
+# write table header code
+html <- '<html><head><title>Acc summary table</title></head><table>'
+html <- paste(html, '<tr><th></th>')
+html <- paste(html, '<th>Individuals</th>')
+for(col  in outcomeCols){
+    html<-paste(html, '<th>', col, '</th>')
+}
+html <- paste(html, '</tr>')
+html <- paste(html, '<tr><th></th>')
+html <- paste(html, '<th>[ n ]</th>')
+html <- paste(html, '<th>[mean &plusmn stdev m<i>g</i>]</th>')
+html <- paste(html, '<th>[mean &plusmn stdev MVPA hrs/dy]</th>')
+
+# iterate through each major row block
+for(group in groups){
+    html<-paste(html, '\n<tr><td><b>', group, '</b></td><td></td><td></td><td>')
+    html<-paste(html, '</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
+    group.tmp <- data.frame(matrix(ncol=4, nrow=0)) #df to store outputs for subsequent effect size calculations
+    colnames(group.tmp) <- c("item", "outcome", "avg", "stdev")
+    # report mean/stdev/n summary stats for each "item" in group e.g. each age categor
+    for(item in levels(dAll[[group]])){
+        html<-paste(html, '<tr>')
+        html<-paste(html, '<td>', item, '</td>')
+        # temp store of all relevant outcome data related to this "item"
+        itemData <- dAll[dAll[[group]]==item, outcomeCols]
+        n <- nrow(itemData)
+        html <- paste(html, '<td align="center">', format(n,big.mark=","), '</td>')
+
+        # iterate through each acceleroemter outcome (i.e. each column)
+        for(outcome in outcomeCols){
+            html <- paste(html, summary4tableHTML_simple(itemData[[outcome]],1))
+            avg <- mean(itemData[[outcome]], na.rm=TRUE)
+            stdev <- sd(itemData[[outcome]], na.rm=TRUE)
+            group.tmp <- rbind(group.tmp, data.frame(item= item, outcome=outcome,
+                                     avg=avg, stdev=stdev))
+        }
+        html<-paste(html, '</tr>')
+    }
+
+
+# now calculate two-way ANOVA p-value between subgroup "items" for each acc outcome
+html<-paste(html, '<tr><td>p value<sup>A</sup></td><td></td>')
+for(outcome in outcomeCols){
+  tmpconfounderCols <- confounderCols
+  if (!(group %in% tmpconfounderCols)){
+     tmpconfounderCols <- c(group, tmpconfounderCols)
+  }
+  formulaStr <- paste(c(outcome,' ~ ', paste(tmpconfounderCols, collapse=' + ')), collapse='')
+  itemANOVA <- aov(as.formula(formulaStr), data=dAll)
+  # extract p-value for specific variable of interest
+  
+  tmp <- as.data.frame(summary(itemANOVA)[[1]])
+  groupResult <- tmp[grep(group, rownames(tmp)), "Pr(>F)"]
+   # write formatted p-value to html
+  
+  html <- paste(html, pValueHTML_cell(groupResult,1e-300))        
+ }
+ html <- paste(html, '</tr>')
+ 
+ # calculate effect size between subgroup "items" for each acc outcome
+ html <- paste(html, "<tr><td>Cohen's d</td><td></td>")
+ for(outcome in outcomeCols){
+   # read relevant subgroup mean/stdev values stored from summary stats derived earlier
+  grouping <-group.tmp[(group.tmp[, "outcome"] ==outcome),]
+  minVal <- min(grouping['avg'])
+  maxVal <- max(grouping['avg'])
+  lowest <- grouping[(grouping$avg==minVal), c('avg','stdev')]
+  highest <- grouping[(grouping$avg==maxVal), c('avg','stdev')]
+  
+  # calculate Cohen's d effect size and format for HTML output
+  cohenD <- effectSize(lowest$avg,lowest$stdev,highest$avg,highest$stdev)
+  cohenD <- format(round(cohenD, 2), nsmall=2)
+  cohenD <- sub('^(-)?0[.]', '\\1.', cohenD)
+  html <- paste(html, '<td align="center">', cohenD, '</td>')
+ }
+
+  html <- paste(html, '</tr>')
+
+}
+#finalise HTML table
+html <- paste(html, '\n</table>')
+html <- paste(html, '<br><i><sup>A</sup> Age, sex:</i> ')
+html <- paste(html, 'Two-way analysis of variance test used to compare metrics between groups')
+html <- paste(html, 'adjusting for age, sex, ethnicity, smoking status and alcohol consumption frequency.')
+html <- paste(html, '</html>')
+# and write html to file
+write(html,file = outHTML)
+
+print(html)
+print('standard table done, written to: ', outHTML)
+
+```
+
+
+## Plots to describe the data
+We'll also plot some of the variables to get a feel for how they're distributed.
+
+```{r}
+#accelerometer measured physical activity
+hist(dAll$acc.overall.avg, breaks=1000, xlim=c(0,100))
+
+#look at deciles
+quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
+```
+
+Now let's look descriptively at something we might expect to vary as activity status varies: BMI.
+
+```{r}
+plotVarAndQuintile(dAll, # dataset
+                   'acc.overall.avg', # exposure
+                   'BMI', # outcome
+                   FALSE # [TRUE/FALSE] save plots to PDF
+                  )
+```
+
+Let's have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day: 
+```{r, eval = FALSE}
+plotAverageDay(dAll, "sleep.hourOfDay.", ".avg", "Sleep (probability)")
+
+```
+You might want to extend this function to plot the different profiles of different groups (e.g. healthy/ unhealthy individuals, or age groups).
+
+# Run a simple health association analysis
+Let's run a minimally (age and sex) adjusted linear model for BMI, against fifths of average acceleration vector magnitude. This is attempting to model statistically the association we were looking at descriptively in the end of the last section.
+
+```{r}
+dAll$acc_quintiles <- cut(dAll$acc.overall.avg, breaks = c(quantile(dAll$acc.overall.avg, probs = seq(0, 1, by = 0.2), na.rm = TRUE))) # cut at quintiles
+min_adj_lm_BMI <- lm(BMI ~acc_quintiles + broadAgeGroup+ sex, dAll)
+```
+
+We can look at the model summary:
+```{r}
+summary(min_adj_lm_BMI)
+```
+
+We can of course look at model diagnostics as usual:
+```{r}
+plot(min_adj_lm_BMI)
+```
+The problem with the Q-Q plot is caused by the BMI distribution - log-transforming the outcome would be a good option in this case.  
+
+## Next steps for modelling 
+
+Here we've looked at a very simple linear model. Next steps might be:
+
+- adjusting for more confounders
+- looking at different outcomes
+- logistic regression for prevalent disease (use the `glm` function)
+- Cox regression for incident disease (see for example the `survival` package and the `coxph` function, )
+
+@Aiden - I can include an example of Cox regression too? Or project specific examples? 
