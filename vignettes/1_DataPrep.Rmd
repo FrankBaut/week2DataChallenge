@@ -76,11 +76,11 @@ df <- df[df$quality.goodCalibration ==1, ]
 df <- df[df$quality.goodWearTime == 1, ]
 ```
 - Exclude participants for whom >1% of values were clipped (fell outside the sensor's range) before or after calibration: 
-```{r}
+```{r, eval = FALSE}
 df <- df[(df$clipsBeforeCalibration < 0.01*df$totalReads) & (df$clipsAfterCalibration <0.01*df$totalReads) , ]
 ```
 - Exclude participants with unrealistically high average acceleration values: 
-```{r}
+```{r, eval = FALSE}
 df <- df[df$acc.overall.avg < 100, ]
 ```
 
@@ -100,7 +100,28 @@ However, this is automated and imperfect. For example, some numeric variables ma
 
 Now is a good time to look at the variables you're planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the [ethnicity variable](https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000) has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. 
 
+One thing you will need to do is add an age-at-accelerometer-wear variable. Here's an example of some code to do that:
+```{r, eval = FALSE}
+# ADD DATE OF BIRTH
+df$approx_dob <-
+  as.Date(paste(df$YearOfBirth, df$MonthOfBirth, "15", sep = "-"),
+          "%Y-%B-%d")
+
+df$age_entry_days <-
+  difftime(as.Date(df$EndTimWear, "%Y-%m-%d %H:%M:%S"), 
+           dall$approx_dob,
+           units = "days")
+
+df$age_entry_years <- df$age_entry_days/365.25
+df$broadAgeGroup <- cut(df$age_entry_years, breaks = c(40, 50, 60, 70, 80 ), labels = c("40-49", "50-59", "60-69", "70-79"))
+
+```
+
+If you're interested in incident disease analyses, you might also want to add a follow-up time variable - i.e. the difference between the time the participant entered the study (accelerometer wear date) and when they left it (death, censoring or the event of interest). 
+
 The [UK Biobank Data Showcase](https://biobank.ndph.ox.ac.uk/showcase/search.cgi) is the go-to resource for understanding variables in the data.
+
+Remember to write your prepared dataset to a file so that you can use it again!! 
 
 # Troubleshooting 
 Please note the repo contains lots of generic filenames – you need to update them to your own filename.
