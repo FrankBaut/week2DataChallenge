@@ -1,6 +1,8 @@
 ---
 title: "Compositional Data Analysis Tutorial"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
 bibliography: library.bib
 vignette: >
   %\VignetteIndexEntry{Compositional Data Analysis Tutorial}
@@ -19,7 +21,7 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8)
 ```{r setup, eval = FALSE}
 install.packages("devtools") # To install epicoda from GitHub, the devtools package is required.
 library(devtools)
-devtools::install_github("activityMonitoring/epicoda",  build_opts = c("--no-resave-data"), build_vignettes = TRUE, build_manual = TRUE)
+devtools::install_github("activityMonitoring/epicoda",  build_opts = c("--no-resave-data"), build_vignettes = TRUE, build_manual = TRUE) # TROUBLESHOOTING if this doesn't work, use build_vignettes = FALSE. You have all the info from the vignette here!
 ```
 
 ```{r}
