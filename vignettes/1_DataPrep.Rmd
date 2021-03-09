@@ -1,0 +1,118 @@
+---
+title: "Data Preparation"
+output: 
+  rmarkdown::html_vignette:
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Data Preparation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This tutorial is on pre-processing for non-accelerometer data. Pre-processing is an important part of the project pipeline – we hope this will give you a lot of flexibility e.g. to decide what variables you want to work with. 
+This tutorial contains: 
+
+1.	Introduction to available data
+2.	Processing covariate data
+3.	Processing health outcomes data
+4.	Merging data files
+5.  Exclusions
+6.  Preprocessing
+7.  Troubleshooting
+8. 	Finding out more 
+
+# Introduction to available data
+Different files are available from UK Biobank for different data types. We will use these files, available under `data_files`: 
+
+-	`ukb41733.enc`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
+-	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
+-	`death.txt`: Death register data. This has one line per participant who has died, giving details of their death. 
+-	Accelerometer data, used last week.
+
+# Processing covariate data
+We will make use of a repo that Shing and Rosemary have developed for this purpose. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data). 
+
+There are three key steps: 
+
+- [Installation](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation)
+-	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv)
+-	[Automated pre-processing of all variables]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data)
+
+Most of the time, you can use this in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file beefore processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138] on qualifications) or had multiple measures take (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
+
+Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
+
+# Processing health outcomes data 
+The next step is to add health outcomes data to the covariate data file. Follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics).
+
+Note that this describes working with Hospital Episode Statistics (`hesin_all.csv`). You might also want to work with data on deaths 
+
+# Merging data files
+You can merge data files using the ‘eid’ column. 
+Note that with accelerometer data, the ‘eid’ column may need adjusting to remove extra text e.g. 
+```{r, eval=FALSE}
+acc$eid <- gsub("_90001_0_0.cwa.gz", "", acc$eid) # This line replaces the first string with the second one wherever it appears in acc$eid
+df <- merge(df, acc, by = "eid")
+```
+
+# Exclusions 
+Before working with the data, we usually exclude some participants. 
+
+First, we exclude participants with poor quality accelerometer data. A standard protocol for exclusions in UK Biobank is to: 
+
+- Exclude participants whose device could not be calibrated: 
+```{r, eval = FALSE}
+df <- df[df$quality.goodCalibration ==1, ]
+```
+- Exclude participants who had <3 days wear or did not have wear in each hour of the 24 hour day: 
+```{r, eval = FALSE}
+df <- df[df$quality.goodWearTime == 1, ]
+```
+- Exclude participants for whom >1% of values were clipped (fell outside the sensor's range) before or after calibration: 
+```{r}
+df <- df[(df$clipsBeforeCalibration < 0.01*df$totalReads) & (df$clipsAfterCalibration <0.01*df$totalReads) , ]
+```
+- Exclude participants with unrealistically high average acceleration values: 
+```{r}
+df <- df[df$acc.overall.avg < 100, ]
+```
+
+If you're interested in finding out more [this is a good reference](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0169649). There is a lot of literature on accelerometer data quality! 
+
+There are two other types of exclusions you may wish to make, depending on your planned analysis. These can be done now, or later:
+
+- Health-related exclusions. For example, if you are analysing incident disease, you may wish to exclude people who had prevalent disease at the time they wore the accelerometer. 
+- Missing covariate data. If small numbers of participants have missing data in covariates, you may wish to exclude them. (Alternatively, you could look into missing data imputation). 
+
+*Important:* You should record how many participants were excluded at each of the above steps. 
+
+# Preprocessing 
+
+Covariate data has had some rough preprocessing already performed, corresponding to 
+However, this is automated and imperfect. For example, some numeric variables may have special values indicating missing data, which have not been reprocessed (an example is [fresh fruit intake](https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=1309)).
+
+Now is a good time to look at the variables you're planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the [ethnicity variable](https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000) has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. 
+
+The [UK Biobank Data Showcase](https://biobank.ndph.ox.ac.uk/showcase/search.cgi) is the go-to resource for understanding variables in the data.
+
+# Troubleshooting 
+Please note the repo contains lots of generic filenames – you need to update them to your own filename.
+
+If nothing is working: we have a pre-processed dataset you can use. Speak to Rosemary – rosemary.walmsley@gtc.ox.ac.uk. 
+
+# Finding out more
+
+To find out more about particular UK Biobank variables, use the [Data Showcase](https://biobank.ndph.ox.ac.uk/ukb/)
+
+To find out more about UK Biobank data collection and history: 
+
+In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use ([an example](https://git.fmrib.ox.ac.uk/fsl/funpack))
+
+In the future, UK Biobank will be moving to an [analysis platform model](https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds) model.
