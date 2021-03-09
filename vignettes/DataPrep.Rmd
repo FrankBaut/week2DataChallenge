@@ -1,0 +1,78 @@
+---
+title: "Data Preparation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data Preparation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(week2DataChallenge)
+```
+
+This tutorial is on pre-processing for non-accelerometer data. Pre-processing is an important part of the project pipeline – we hope this will give you a lot of flexibility e.g. to decide what variables you want to work with. 
+This tutorial contains: 
+
+1.	Introduction to available data
+2.	Processing covariate data
+3.	Processing health outcomes data
+4.	Merging data files
+5.	Finding out more 
+
+# Introduction to available data
+Different files are available from UK Biobank for different data types. We will use these files, available under `data_files`: 
+
+-	`ukb41733.enc`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
+-	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
+-	`death.txt`: Death register data. This has one line per participant who has died, giving details of their death. 
+-	Accelerometer data, used last week.
+
+# Processing covariate data
+We will make use of a repo that Shing and Rosemary have developed for this purpose. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data). 
+
+There are three key steps: 
+
+- [Installation](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation)
+-	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv)
+-	[Automated pre-processing of all variables]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data)
+
+Most of the time, you can use this in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file beefore processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138] on qualifications) or had multiple measures take (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
+
+Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
+
+# Processing health outcomes data 
+The next step is to add health outcomes data to the covariate data file. Follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics).
+
+Note that this describes working with Hospital Episode Statistics (`hesin_all.csv`). You might also want to work with data on deaths 
+
+# Merging data files
+You can merge data files using the ‘eid’ column. 
+Note that with accelerometer data, the ‘eid’ column may need adjusting to remove extra text e.g. 
+```{r, eval=FALSE}
+acc$eid <- gsub("_90001_0_0.cwa.gz", "", acc$eid) # This line replaces the first string with the second one wherever it appears in acc$eid
+df <- merge(df, acc, by = "eid")
+```
+
+
+# Troubleshooting 
+Please note the repo contains lots of generic filenames – you need to update them to your own filename.
+
+If nothing is working: we have a pre-processed dataset you can use. Speak to Rosemary – rosemary.walmsley@gtc.ox.ac.uk. 
+
+# Finding out more
+
+To find out more about particular UK Biobank variables, use the [Data Showcase](https://biobank.ndph.ox.ac.uk/ukb/)
+
+To find out more about UK Biobank data collection and history: 
+
+In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use ([an example](https://git.fmrib.ox.ac.uk/fsl/funpack))
+
+In the future, UK Biobank will be moving to an [analysis platform model](https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds) model.
