@@ -1,0 +1,141 @@
+#'  Calculate Cohen's d (effect size)
+#'
+#'  Helper method to calculate effect size using Cohen's d formula.
+#'
+#' @param lowestMean Mean in lowest group
+#' @param LowestSD SD in lowest group
+#' @param highestMean Mean in highest group
+#' @param highestSD SD in highest group
+#' @return Effect size estimate
+effectSize <- function(lowestMean, lowestSD, highestMean, highestSD){
+  sd <- sqrt((lowestSD*lowestSD + highestSD*highestSD)/2)
+  return ((abs(highestMean-lowestMean))/sd)
+}
+
+#'  Format mean and SD
+#'
+#'  Helper method to show formatted mean and SD to specified number of decimal places for use in table cell.
+#'
+#' @param col A numeric vector
+#' @param numDigits Number of decimal places for output.
+#' @return Cell for HTML summary table giving mean and SD of vector to a specified number of decimal places.
+summary4tableHTML_simple <- function(col, numDigits){
+  mean <- format(round(mean(col, na.rm=TRUE), numDigits), nsmall = numDigits)
+  std <- format(round(sd(col, na.rm=TRUE), numDigits), nsmall = numDigits)
+  cell <- paste('<td align="center">', mean, ' &plusmn ', std, '</td>', sep="")
+  return (cell)
+}
+
+#'  Format p-value
+#'
+#'  Helper method to show formatted p-value in HTML table
+#'
+#' @param col p-value
+#' @param cut Smallest p-value to be shown
+#' @return Cell for HTML summary table with formatted p-values.
+pValueHTML_cell <- function(pVal, cut){
+  pStr <- ""
+  if(pVal<cut){
+    valStr <- formatC(cut, digits=0, format="e")
+    ele <- strsplit(valStr, "e")[[1]]
+    pStr <- paste('<1x10<sup>', ele[2], '</sup>', sep="")
+  }
+  else if(pVal<.001){
+    valStr <- formatC(pVal, digits=0, format="e")
+    ele <- strsplit(valStr, "e")[[1]]
+    pStr <- paste(ele[1], 'x10<sup>', ele[2], '</sup>', sep="")
+  }
+  else {
+    pStr <- format(round(pVal, 3), nsmall = 3, nbig=0)
+    pStr <- sub('^(-)?0[.]', '\\1.', pStr)
+  }
+  cell <- paste('<td align="center">', pStr, '</td>', sep="")
+  return (cell)
+}
+
+
+
+# "melt table" with output column names
+meltTable <- function(data, outcome, outcome.time, levelCols, aovCols){
+  levelCols <- NULL
+  for (level in levels){
+    levelCols <- c(levelCols, paste(outcome,level,sep=""))
+  }
+  time <- melt(data,
+               id.vars = c(aovCols, 'n_eid'),
+               measure.vars = levelCols,
+               variable.name = outcome.time,
+               value.name = outcome)
+  return(time)
+}
+
+# plot variables within quintiles of another variable
+plotVarAndQuintile <- function(dataInput, exposure, outcome, writePDF){
+  #cat('\n\n\n =========== \n', outcome, ' AND ', exposure, '(confounders = ', confounders, ')\n =========== \n')
+  expVar <- dataInput[[exposure]]
+  outVar <- dataInput[[outcome]]
+  expVarQuintile <- as.factor(cut(expVar,
+                                  quantile(expVar, c(0,0.2,0.4,0.6,0.8,1.0), na.rm=TRUE),
+                                  include.lowest=TRUE,
+                                  labels=FALSE)
+  )
+  if (writePDF) {
+    pdf(paste(outcome, '-', exposure, '.pdf', sep=""), height=8, width=16)
+  }
+  par(mfrow=c(1,2))
+  plot(outVar ~ expVar,
+       main=exposure, xlab=exposure, ylab=outcome, xlim=c(0,quantile(expVar, c(0.99), na.rm=TRUE)))
+
+  boxplot(outVar ~ expVarQuintile,# data=tmp,
+          main=paste(exposure,'-quintile',sep=""), xlab=exposure, ylab=outcome)
+  if (writePDF) {
+    dev.off()
+    cat('Plots written to: ', paste(outcome, '-', exposure, '.pdf', sep=""))
+  }
+}
+
+# boxplot of variables
+boxplotVar <- function(dataInput, groupStr, yStr, writePDF){
+  #cat('\n\n\n =========== \n', outcome, ' AND ', exposure, '(confounders = ', confounders, ')\n =========== \n')
+  group <- dataInput[[groupStr]]
+  y <- dataInput[[yStr]]
+  boxplot(y ~ group,
+          main=paste(yStr,' ~ ', groupStr,sep=""), xlab=groupStr, ylab=yStr)
+  if (writePDF) {
+    dev.off()
+    cat('Plots written to: ', paste(yStr, '-', groupStr, '.pdf', sep=""))
+  }
+}
+
+# plot activity profiles over an average day
+plotAverageDay <- function(data, exposurePrefix, exposureSuffix, yAxisLabel = exposurePrefix, outPng = NULL){
+
+  hrPACols <- c()
+  mean_PACols <- c()
+  se_PACols <- c()
+  low_PACols <- c()
+  high_PACols <- c()
+  hrs <- c()
+  for (hr in 0:23){
+    hrs <- c(hrs, as.numeric(hr))
+    hrPACols <- c(hrPACols , paste(exposurePrefix, hr, exposureSuffix, sep = ""))
+    mean_PACols <- c(mean_PACols, as.numeric(mean(data[,hrPACols[hr+1]], na.rm = TRUE)))
+    se_PACols <- c(se_PACols, as.numeric(sqrt(var(data[, hrPACols[hr+1]], na.rm = TRUE))/sqrt(nrow(data))))
+    low_PACols <- c(low_PACols, mean_PACols[hr+1] - se_PACols[hr+1])
+    high_PACols <- c(high_PACols, mean_PACols[hr+1] + se_PACols[hr+1])
+  }
+  plot <- ggplot(data = data.frame(cbind(hrs, mean_PACols, low_PACols, high_PACols)), aes(x = hrs, y = mean_PACols))+
+    geom_ribbon(aes(x = hrs, ymin = low_PACols,
+                    ymax = high_PACols), colour = "grey")+
+    geom_line()+
+    labs(title = "Time-of-day behaviour profile",
+         y = yAxisLabel,
+         x = "Hour of Day")
+
+  if (!(is.null(outPng))){
+    ggsave(outPng, plot = plot, device = png())
+  }
+
+  return(plot)
+
+}
