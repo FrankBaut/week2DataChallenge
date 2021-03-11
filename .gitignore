@@ -1,0 +1,9 @@
+inst/doc
+docs
+*.csv
+*.svg
+*.png
+*.jpg
+*.tiff
+.Rproj.user
+*.Rproj
