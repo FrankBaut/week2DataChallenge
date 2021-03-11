@@ -1,9 +1,9 @@
 inst/doc
-docs
 *.csv
-*.svg
-*.png
-*.jpg
 *.tiff
 .Rproj.user
 *.Rproj
+*.Rhistory
+.Rhistory
+.Rbuildignore
+data_and_data_prep
