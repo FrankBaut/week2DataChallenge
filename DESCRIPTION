@@ -1,0 +1,24 @@
+Package: week2DataChallenge
+Type: Package
+Title: Data Challenge - Week 2 (Health Association Analysis)
+Version: 0.0.0.9000
+Author: person("Rosemary", "Walmsley", email = "rosemary.walmsley@gtc.ox.ac.uk",
+                  role = c("aut", "cre"))
+Maintainer: <rosemary.walmsley@gtc.ox.ac.uk>
+Description: This set of tutorials provides an introduction to health association analysis for using wearable device data in R. Different topics are under the 'Articles' tab. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.6.0)
+Imports: 
+    ggplot2 (>= 3.2.0),  
+    forestplot (>= 1.9), 
+    utils (>= 3.6.1), 
+    stats (>= 3.6.1)
+RoxygenNote: 7.1.1
+Suggests: 
+    testthat (>= 2.1.0),
+    knitr,
+    rmarkdown, 
+    devtools
+VignetteBuilder: knitr

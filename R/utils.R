@@ -7,6 +7,7 @@
 #' @param highestMean Mean in highest group
 #' @param highestSD SD in highest group
 #' @return Effect size estimate
+#' @export
 effectSize <- function(lowestMean, lowestSD, highestMean, highestSD){
   sd <- sqrt((lowestSD*lowestSD + highestSD*highestSD)/2)
   return ((abs(highestMean-lowestMean))/sd)
@@ -19,6 +20,7 @@ effectSize <- function(lowestMean, lowestSD, highestMean, highestSD){
 #' @param col A numeric vector
 #' @param numDigits Number of decimal places for output.
 #' @return Cell for HTML summary table giving mean and SD of vector to a specified number of decimal places.
+#' @export
 summary4tableHTML_simple <- function(col, numDigits){
   mean <- format(round(mean(col, na.rm=TRUE), numDigits), nsmall = numDigits)
   std <- format(round(sd(col, na.rm=TRUE), numDigits), nsmall = numDigits)
@@ -33,6 +35,7 @@ summary4tableHTML_simple <- function(col, numDigits){
 #' @param col p-value
 #' @param cut Smallest p-value to be shown
 #' @return Cell for HTML summary table with formatted p-values.
+#' @export
 pValueHTML_cell <- function(pVal, cut){
   pStr <- ""
   if(pVal<cut){
@@ -55,32 +58,25 @@ pValueHTML_cell <- function(pVal, cut){
 
 
 
-# "melt table" with output column names
-meltTable <- function(data, outcome, outcome.time, levelCols, aovCols){
-  levelCols <- NULL
-  for (level in levels){
-    levelCols <- c(levelCols, paste(outcome,level,sep=""))
-  }
-  time <- melt(data,
-               id.vars = c(aovCols, 'n_eid'),
-               measure.vars = levelCols,
-               variable.name = outcome.time,
-               value.name = outcome)
-  return(time)
-}
-
-# plot variables within quintiles of another variable
-plotVarAndQuintile <- function(dataInput, exposure, outcome, writePDF){
+#' Plot variables within quintiles of another variable
+#'
+#' @param dataInput Dataset to use
+#' @param exposure Name of exposure variable
+#' @param outcome Name of outcome variable
+#' @param writePDF Logical parameter. If TRUE, writes pdf file with output.
+#' @export
+plotVarAndQuintile <- function(dataInput, exposure, outcome, writePDF = FALSE){
   #cat('\n\n\n =========== \n', outcome, ' AND ', exposure, '(confounders = ', confounders, ')\n =========== \n')
   expVar <- dataInput[[exposure]]
   outVar <- dataInput[[outcome]]
+  filename <- paste(outcome, '-', exposure, '.pdf', sep="")
   expVarQuintile <- as.factor(cut(expVar,
                                   quantile(expVar, c(0,0.2,0.4,0.6,0.8,1.0), na.rm=TRUE),
                                   include.lowest=TRUE,
                                   labels=FALSE)
   )
   if (writePDF) {
-    pdf(paste(outcome, '-', exposure, '.pdf', sep=""), height=8, width=16)
+    pdf(filename, height=8, width=16)
   }
   par(mfrow=c(1,2))
   plot(outVar ~ expVar,
@@ -90,24 +86,19 @@ plotVarAndQuintile <- function(dataInput, exposure, outcome, writePDF){
           main=paste(exposure,'-quintile',sep=""), xlab=exposure, ylab=outcome)
   if (writePDF) {
     dev.off()
-    cat('Plots written to: ', paste(outcome, '-', exposure, '.pdf', sep=""))
+    cat('Plots written to: ', filename)
   }
 }
 
-# boxplot of variables
-boxplotVar <- function(dataInput, groupStr, yStr, writePDF){
-  #cat('\n\n\n =========== \n', outcome, ' AND ', exposure, '(confounders = ', confounders, ')\n =========== \n')
-  group <- dataInput[[groupStr]]
-  y <- dataInput[[yStr]]
-  boxplot(y ~ group,
-          main=paste(yStr,' ~ ', groupStr,sep=""), xlab=groupStr, ylab=yStr)
-  if (writePDF) {
-    dev.off()
-    cat('Plots written to: ', paste(yStr, '-', groupStr, '.pdf', sep=""))
-  }
-}
-
-# plot activity profiles over an average day
+#' Plot behaviour profiles over an average day
+#'
+#' @param data Dataset to use
+#' @param exposurePrefix Name of behaviour variable to plot
+#' @param exposureSuffix Suffix of behaviour variable columns in dataset
+#' @param yAxisLabel Label for y-axis
+#' @param outPng Optional filename to save plot
+#' @return Plot of behaviour variable over hours of day
+#' @export
 plotAverageDay <- function(data, exposurePrefix, exposureSuffix, yAxisLabel = exposurePrefix, outPng = NULL){
 
   hrPACols <- c()
