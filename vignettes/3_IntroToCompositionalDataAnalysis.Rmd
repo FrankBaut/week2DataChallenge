@@ -15,10 +15,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-knitr::opts_chunk$set(fig.width=12, fig.height=8)
 ```
 
 ```{r setup, eval = FALSE}
+install.packages("ggplot2") # Plotting works better with ggplot2
 install.packages("devtools") # To install epicoda from GitHub, the devtools package is required.
 library(devtools)
 devtools::install_github("activityMonitoring/epicoda",  build_opts = c("--no-resave-data"), build_vignettes = TRUE, build_manual = TRUE) # TROUBLESHOOTING if this doesn't work, use build_vignettes = FALSE. You have all the info from the vignette here!
@@ -26,6 +26,7 @@ devtools::install_github("activityMonitoring/epicoda",  build_opts = c("--no-res
 
 ```{r}
 library(epicoda)
+library(ggplot2)
 ```
 
 
@@ -37,7 +38,7 @@ This tutorial is closely based on one of the package vignettes... Which was itse
 ## Getting started with compositional data
 
 ### Loading simulated data
-`simdata` is a (simulated) compositional dataset in the package. It has 5 columns which make up a hypothetical physical behaviour composition: "vigorous" (activity), "moderate" (activity), "light" (activity), "sedentary" (behaviour), "sleep". It also contains sex, age group and outcome columns. As the data is simulated, all results are hypothetical.
+`simdata` is a (simulated) compositional dataset in the package. It has 5 columns which make up a hypothetical movement behaviour composition: "vigorous" (activity), "moderate" (activity), "light" (activity), "sedentary" (behaviour), "sleep". It also contains sex, age group and outcome columns. As the data is simulated, all results are hypothetical.
 ```{r}
 head(simdata)
 ```
@@ -179,6 +180,7 @@ tab_coefs(scale_type = "lp", # This argument can be "lp" or "exp" and determines
 
 ### Presenting the results:  substitution plots
 Substitution plots show the model-predicted difference in the outcome (relative to at the compositional mean) as the balance between two parts of the composition varies. In the case of time use/physical behaviours, they are known as isotemporal substitution plots and show the model-predicted difference in the outcome at higher time in one behaviour at the expense of time in another behaviour (the model-predicted difference in outcome for a hypothetical reallocation of time from one behaviour to another). For example:
+
 ```{r}
 plot_transfers(from_part = "sedentary",
                to_part = "moderate",

@@ -31,7 +31,7 @@ This tutorial contains:
 # Introduction to available data
 Different files are available from UK Biobank for different data types. We will use these files, available under `data_files`: 
 
--	`ukb41733.enc`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
+-	`ukb41733.enc_ukb`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
 -	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
 -	`death.txt`: Death register data. This has one line per participant who has died, giving details of their death. 
 -	Accelerometer data, used last week.
@@ -45,7 +45,7 @@ There are three key steps:
 -	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv)
 -	[Automated pre-processing of all variables]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data)
 
-Most of the time, you can use this in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file beefore processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138] on qualifications) or had multiple measures take (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
+Most of the time, you can use this in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138] on qualifications) or had multiple measures take (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
 
 Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
 
@@ -108,12 +108,12 @@ df$approx_dob <-
           "%Y-%B-%d")
 
 df$age_entry_days <-
-  difftime(as.Date(df$EndTimWear, "%Y-%m-%d %H:%M:%S"), 
-           dall$approx_dob,
+  difftime(as.Date(df$EndTimWear, "%Y-%m-%d %H:%M:%S", tz = "Europe/London"), 
+           df$approx_dob,
            units = "days")
 
-df$age_entry_years <- df$age_entry_days/365.25
-df$broadAgeGroup <- cut(df$age_entry_years, breaks = c(40, 50, 60, 70, 80 ), labels = c("40-49", "50-59", "60-69", "70-79"))
+df$age_entry_years <- as.numeric(df$age_entry_days)/365.25
+df$broadAgeGroup <- cut(df$age_entry_years, breaks = c(40, 50, 60, 70, 80 ), right = FALSE, labels = c("40-49", "50-59", "60-69", "70-79"))
 
 ```
 
