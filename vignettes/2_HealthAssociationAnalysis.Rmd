@@ -9,47 +9,64 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r,  include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+knitr::opts_chunk$set(fig.width=12, fig.height=8)
+library(rmarkdown)
+library(knitr)
+```
+
 In this tutorial, we will go through a basic health association analysis using movement behaviour data.
 
 As well as external packages, we'll use some helper functions we've prepared previously. If you want to modify them, you can find them on the reference page. 
 
-#  Load in data¶
+#  Load in data
 First we will load required packages, and the data we already prepared.
 
 ```{r load-packages}
 # First we need to install packages that aren't already present. 
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(devtools, ggtern, ggplot2, reshape2, data.table)
+devtools::load_all()
 library(week2DataChallenge)
 
 # We then load the data prepared in the last tutorial. 
-dAll <- data.frame(fread("J:/data_and_prep_utilities/59070_application/ukb-new-hes-feb.csv")) #ukb-data-challenge.csv"))# Substitute with the correct path! 
+dAll <- data.frame(fread("J:\\cdt_prep\\week2_wearables_data_challenge_2021\\week2DataChallenge\\data_and_data_prep\\ukb-data-challenge.csv")) # Substitute with the correct path! 
 ```
+
+We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in a variable on the scale 
+```{r final-prep}
+dAll$sex <- as.factor(dAll$Sex)
+dAll$ethnicity <- as.factor(dAll$ethnicity)
+dAll$smoking <- as.factor(dAll$smoking)
+dAll$alcohol <- as.factor(dAll$alcohol)
+dAll$broadAgeGroup <- as.factor(dAll$broadAgeGroup)
+
+behaviour_vars <- c("MVPA", "LIPA", "SB", "sleep")
+for (variable in behaviour_vars){
+  dAll[, paste0(variable, "_min_per_day")] <- 24*60*dAll[, variable]
+  dAll[, paste0(variable, "_hr_per_day")] <- 24*dAll[, variable]
+}
+
+```
+
 
 #  Describe and explore the data
 ## Tables to describe the data
 The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season). It does two-way analysis of variance, adjusted for the variables listed as confounder columns.
 
-You might think more about the distribution of some of the accelerometry-derived variables - for some, ANOVA may not be the most appropriate way to test for difference. But it's good for a first description!
+The code might look excessively complicated, because we wanted to save it as a html output. You could do the same thing using R data frames, and then work out formatting afterwards... 
 
-TROUBLESHOOTING: if you change some of the confounders you use, and you have a categorical variable with two categories, you need to add dAll$category <- as.factor(dAll$category) to the code somewhere. Otherwise, this code won't cope with the variable.
-
-```{r final-prep}
-dAll$sex <- as.factor(dAll$sex)
-dAll$ethnicity <- as.factor(dAll$ethnicity)
-dAll$smoking <- as.factor(dAll$smoking)
-dAll$alcohol <- as.factor(dAll$alcohol)
-
-# FOR REMOVAL
-dAll$age_entry_years <- dAll$age_entry/365.25
-dAll$broadAgeGroup <- cut(dAll$age_entry_years, breaks = c(40, 50, 60, 70, 80 ), labels = c("40-49", "50-59", "60-69", "70-79"))
-```
 
 ```{r table}
 # specify groups (i.e. major row blocks)
 groups <-  c("broadAgeGroup", "sex") # Fill this in with groups you want to look at
+
 # specify accelerometer outcomes (i.e. column headings)
-outcomeCols <- c( "acc.overall.avg", "MVPA") # Fill this in with a list of outcomes you want to look at
+outcomeCols <- c( "acc.overall.avg", "LIPA_hr_per_day") # Fill this in with a list of outcomes you want to look at
 
 # specify two-way analysis of variance confounder columns
 confounderCols <- c("broadAgeGroup", "sex", "ethnicity", "smoking", "alcohol") # Fill this in with what 
@@ -69,7 +86,7 @@ html <- paste(html, '</tr>')
 html <- paste(html, '<tr><th></th>')
 html <- paste(html, '<th>[ n ]</th>')
 html <- paste(html, '<th>[mean &plusmn stdev m<i>g</i>]</th>')
-html <- paste(html, '<th>[mean &plusmn stdev MVPA hrs/dy]</th>')
+html <- paste(html, '<th>[mean &plusmn stdev LIPA hr/dy]</th>')
 
 # iterate through each major row block
 for(group in groups){
@@ -144,20 +161,26 @@ html <- paste(html, 'Two-way analysis of variance test used to compare metrics b
 html <- paste(html, 'adjusting for age, sex, ethnicity, smoking status and alcohol consumption frequency.')
 html <- paste(html, '</html>')
 # and write html to file
-write(html,file = outHTML)
+write(html, file = outHTML)
 
-print(html)
-print('standard table done, written to: ', outHTML)
-
+print(paste0('standard table done, written to: ', outHTML))
+knitr::include_url(outHTML)
 ```
 
+You might think more about the distribution of some of the accelerometry-derived variables - for some, this may not be the best way to characterise them (for example, the distribution of MVPA is very skewed). But it's good for a first description!
 
 ## Plots to describe the data
 We'll also plot some of the variables to get a feel for how they're distributed.
 
 ```{r}
-#accelerometer measured physical activity
+# overall physical activity
 hist(dAll$acc.overall.avg, breaks=1000, xlim=c(0,100))
+
+#look at deciles
+quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
+
+# MVPA
+hist(dAll$MVPA_min_per_day, breaks=1000, xlim=c(0,100))
 
 #look at deciles
 quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
@@ -173,11 +196,12 @@ plotVarAndQuintile(dAll, # dataset
                   )
 ```
 
-Let's have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day: 
-```{r, eval = FALSE}
+Let's have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day:
+```{r}
 plotAverageDay(dAll, "sleep.hourOfDay.", ".avg", "Sleep (probability)")
 
 ```
+
 You might want to extend this function to plot the different profiles of different groups (e.g. healthy/ unhealthy individuals, or age groups).
 
 # Run a simple health association analysis
@@ -204,8 +228,8 @@ The problem with the Q-Q plot is caused by the BMI distribution - log-transformi
 Here we've looked at a very simple linear model. Next steps might be:
 
 - adjusting for more confounders
+- refining the definition of the exposure or looking at different exposure variables
 - looking at different outcomes
 - logistic regression for prevalent disease (use the `glm` function)
 - Cox regression for incident disease (see for example the `survival` package and the `coxph` function, )
 
-@Aiden - I can include an example of Cox regression too? Or project specific examples? 
