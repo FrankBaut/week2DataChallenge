@@ -254,13 +254,12 @@ cat(sum(dAll$died), "participants died")
 dAll$censoring <- as.Date("31/12/2020", format = "%d/%m/%Y")
 dAll$censoring[dAll$UkBiobankAssessCent %in% c("Cardiff", "Wrexham", "Swansea")] <- as.Date("28/02/2018", format = "%d/%m/%Y")
 
-# For people who died, we need to censor them at the earliest of their date of death and overall censoring (e.g. a participant with an IHD event in Wales in 2019 and who died # in 2020 should nonetheless be censored at 28.02.2018
+# For people who died, we need to censor them at the earliest of their date of death and overall censoring (e.g. a participant in Wales who died in 2020 should nonetheless be # censored at 28.02.2018 - if they had an IHD event in 2019 we wouldn't know about it
 dAll$censoring[(dAll$died == 1)] <- pmin(dAll$censoring[dAll$died == 1], as.Date(dAll$date_of_death[dAll$died ==1], format = "%d/%m/%Y"))
 
 # Add follow up variable (censor date for participants without an event, event date for participants with an event)
 dAll$follow_up <- dAll$censoring
-IHD_group <- dAll[(dAll$ischaemic.heart.disease.incident == 1), ]
-dAll$follow_up[(dAll$ischaemic.heart.disease.incident == 1)] <-  pmin(as.Date(IHD_group$ischaemic.heart.disease, format = "%Y-%m-%d"), IHD_group$censoring)
+dAll$follow_up[(dAll$ischaemic.heart.disease.incident == 1)] <-  pmin(as.Date(dAll$ischaemic.heart.disease[(dAll$ischaemic.heart.disease.incident == 1)], format = "%Y-%m-%d"), dAll$censoring[(dAll$ischaemic.heart.disease.incident == 1)])
 
 # Note event status at censoring (again, care taken as there are some instances of entries in the data after censoring)
 dAll$IHD_at_exit <- 0
@@ -269,14 +268,14 @@ cat(sum(dAll$IHD_at_exit), " had incident hospital diagnosed ischaemic heart dis
 
 # Calculate follow up time 
 dAll$fu_time <- as.numeric(difftime(dAll$follow_up, as.Date(dAll$EndTimWear, "%Y-%m-%d %H:%M:%S", tz = "Europe/London")))
-
 ```
+WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways... I did so several times when writing this example (and don't guarantee it's error-free now!). It is well worth inspecting your data repeatedly to check that the code is doing what you expect! [Obviously not shown here as I can't print the data frame on the internet! ... Bear this in mind when using RMarkdown]. 
+
 We now have an event status indicator at exit and a follow-up time variable, which is enough to run a Cox model: 
 ```{r}
 library(survival)
 cox_model <- coxph(Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + sex + acc_quintiles, dAll)
 summary(cox_model)
-
 ```
 Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
 

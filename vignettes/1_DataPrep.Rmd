@@ -29,7 +29,7 @@ This tutorial contains:
 8. 	Finding out more 
 
 # Introduction to available data
-Different files are available from UK Biobank for different data types. We will use these files, available under `data_files`: 
+Different files are available from UK Biobank for different data types. We will use these files, available under `/cdtshared/wearables/health_data_files`: 
 
 -	`ukb41733.enc_ukb`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
 -	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
