@@ -202,36 +202,7 @@
 <div id="plotting-ternary-diagrams" class="section level3">
 <h3 class="hasAnchor">
 <a href="#plotting-ternary-diagrams" class="anchor"></a>Plotting ternary diagrams</h3>
-<p>Ternary plots provide a way to plot compositional data with three parts. The R package <code>ggtern</code> is an extension of <code>ggplot2</code> to carry out this plotting. In this package, there is a wrapper for <code>ggtern</code> functions to implement common use cases in epidemiological analyses: plotting the data density, and plotting the data density within subgroups.</p>
-<p>Frequently, data has more than three compositional parts (as here). There are two alternatives in that case: using three parts of the existing parts (looking at the subcomposition formed by these parts), or summing parts to consider a different composition (where that is informative). In the simulated data, <code>"vigorous", "moderate"</code> and <code>"light"</code> represent three different intensities of activity, so it is meaningful to combine them:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">simdata</span><span class="op">$</span><span class="va">all_activity</span> <span class="op">&lt;-</span> <span class="va">simdata</span><span class="op">$</span><span class="va">vigorous</span> <span class="op">+</span> <span class="va">simdata</span><span class="op">$</span><span class="va">moderate</span> <span class="op">+</span> <span class="va">simdata</span><span class="op">$</span><span class="va">light</span>
-<span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_density_ternary.html" class="external-link">plot_density_ternary</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simdata</span>,
-                     parts_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all_activity"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span>,
-                     n_bins <span class="op">=</span> <span class="fl">10</span> <span class="co"># This argument specifies we want to use 10 bins</span>
-                     <span class="co"># (i.e. 10% of data lies between each pair of contours on the plot.) Default is 5.</span>
-<span class="op">)</span>
-<span class="co">#&gt; Registered S3 methods overwritten by 'ggtern':</span>
-<span class="co">#&gt;   method           from   </span>
-<span class="co">#&gt;   grid.draw.ggplot ggplot2</span>
-<span class="co">#&gt;   plot.ggplot      ggplot2</span>
-<span class="co">#&gt;   print.ggplot     ggplot2</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
-<pre><code>#&gt; Failed to get face: , 8512</code></pre>
-<p>Another frequent use case is considering this plot with the density separated by groups. For example, to look at different sexes (which in fact don’t differ much in the simulated data):</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_density_ternary.html" class="external-link">plot_density_ternary</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simdata</span>,
-                     parts_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all_activity"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span>,
-                     groups <span class="op">=</span> <span class="st">"sex"</span><span class="op">)</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
-<p>The <code>mark_points</code> argument can be used to annotate particular points using crosshairs. For example, to mark the compositional mean:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">points_to_mark</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/comp_mean.html" class="external-link">comp_mean</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simdata</span>, comp_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all_activity"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_density_ternary.html" class="external-link">plot_density_ternary</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simdata</span>,
-                     parts_to_plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all_activity"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span>,
-                     mark_points <span class="op">=</span> <span class="va">points_to_mark</span>
-                      <span class="op">)</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>Ternary plots provide a way to plot compositional data with three parts. The R package <code>ggtern</code> is an extension of <code>ggplot2</code> to carry out this plotting. Unfortunately, the current version causes some unfortunate masking of <code>ggplot2</code> methods, so isn’t shown in this vignette. But if you want to plot ternary plots, I (Rosemary) can share code and tips!</p>
 </div>
 </div>
 <div id="regression-modelling" class="section level2">
@@ -241,7 +212,7 @@
 <h3 class="hasAnchor">
 <a href="#setting-up-regression-models" class="anchor"></a>Setting up regression models</h3>
 <p>The package has a wrapper for linear regression, logistic regression and Cox regression modelling using compositional variables, with adjustment for covariates. Compositional Data Analysis regression modelling works by transforming the variables making up the composition (see ‘Mechanics of Compositional Data Analysis’ below), and using the transformed variables (known as ‘log-ratio coordinates’) in the model. The package automates these steps. For example, to set up a linear regression model for the association between behaviour variables and <code>BMI</code>, adjusted for age and sex:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lm_BMI</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/comp_model.html" class="external-link">comp_model</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"linear"</span>,
          outcome <span class="op">=</span> <span class="st">"BMI"</span>,
          covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"agegroup"</span>, <span class="st">"sex"</span><span class="op">)</span>,
@@ -259,10 +230,10 @@
 <h3 class="hasAnchor">
 <a href="#understanding-the-model-output" class="anchor"></a>Understanding the model output</h3>
 <p>The model object is a standard <code>lm</code> object, and we can inspect it in the usual way:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">lm_BMI</span><span class="op">)</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-11-1.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-11-2.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-11-3.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-11-4.png" width="700"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-8-1.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-8-2.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-8-3.png" width="700"><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-8-4.png" width="700"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">lm_BMI</span><span class="op">)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Call:</span>
@@ -297,7 +268,7 @@
 <h3 class="hasAnchor">
 <a href="#presenting-the-results-tabulate-pivot-coordinate-coefficients" class="anchor"></a>Presenting the results: tabulate pivot-coordinate coefficients</h3>
 <p>A common way to present the results is to present coefficients as usual for covariates, and then produce as many models as there are compositional variables. From each of these models, the coefficient for the first ‘ilr pivot coordinate’ is taken (see ‘Mechanics of Compositional Data Analysis’ below). These ilr pivot coordinate coefficients can be interpreted in terms of transfer between the particular compositional part and all other parts proportionally. <code>tab_coefs</code> is a function which wraps generating one model per compositional variable and outputting a table of model coefficients.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/tab_coefs.html" class="external-link">tab_coefs</a></span><span class="op">(</span>scale_type <span class="op">=</span> <span class="st">"lp"</span>, <span class="co"># This argument can be "lp" or "exp" and determines whether coefficients are presented on the scale of the linear predictors ("lp") or are exponentiated ("exp"). # Exponentiation gives the Odds Ratio for logistic regression models and the Hazard Ratio for Cox regression models.</span>
           level <span class="op">=</span> <span class="fl">0.95</span>,
           type <span class="op">=</span> <span class="st">"linear"</span>,
@@ -374,14 +345,14 @@
 <div id="presenting-the-results-substitution-plots" class="section level3">
 <h3 class="hasAnchor">
 <a href="#presenting-the-results-substitution-plots" class="anchor"></a>Presenting the results: substitution plots</h3>
-<p>Substitution plots show the model-predicted difference in the outcome (relative to at the compositional mean) as the balance between two parts of the composition varies. In the case of time use/physical behaviours, they are known as isotemporal substitution plots and show the model-predicted difference in the outcome at higher time in one behaviour at the expense of time in another behaviour (the model-predicted difference in outcome for a hypothetical reallocation of time from one behaviour to another). For example:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<p>Substitution plots show the model-estimated difference in the outcome (relative to at the compositional mean) as the balance between two parts of the composition varies. In the case of time use/physical behaviours, they are known as isotemporal substitution plots and show the model-estimated difference in the outcome at higher time in one behaviour at the expense of time in another behaviour (the model-estimated difference in outcome for a hypothetical reallocation of time from one behaviour to another). For example:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_transfers.html" class="external-link">plot_transfers</a></span><span class="op">(</span>from_part <span class="op">=</span> <span class="st">"sedentary"</span>,
                to_part <span class="op">=</span> <span class="st">"moderate"</span>,
                model <span class="op">=</span> <span class="va">lm_BMI</span> ,
                dataset <span class="op">=</span> <span class="va">simdata</span>,
                comp_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vigorous"</span>, <span class="st">"moderate"</span>, <span class="st">"light"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span>,
-               y_label <span class="op">=</span> <span class="st">"Model-predicted difference in BMI"</span>,
+               y_label <span class="op">=</span> <span class="st">"Model-estimated difference in BMI"</span>,
                units <span class="op">=</span> <span class="st">"hr/day"</span><span class="op">)</span>
 <span class="co">#&gt; det_limit was imputed as the minimum value observed in the compositional</span>
 <span class="co">#&gt;          columns of data; </span>
@@ -394,7 +365,7 @@
 <span class="co">#&gt; [1] "sleep : 8.8 hr/day"</span>
 <span class="co">#&gt; fixed_values will be updated to have compositional parts fixed at the compositional mean. For technical and pragmatic reasons, use of a different reference for the compositional parts is not currently possible.</span>
 <span class="co">#&gt; Please note that plotting may take some time.</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <div id="notes-2" class="section level4">
 <h4 class="hasAnchor">
 <a href="#notes-2" class="anchor"></a>Notes</h4>
@@ -412,7 +383,7 @@
 <h4 class="hasAnchor">
 <a href="#generating-perturbations-of-a-composition" class="anchor"></a>Generating perturbations of a composition</h4>
 <p>While there are hugely varied compositions which might be possible, one kind of composition is often of interest. This is compositions where one particular part is perturbed at the expense of all other parts proportionally. As this is a common use case, there is a function implemented to do this:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span>
   <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/comp_mean.html" class="external-link">comp_mean</a></span><span class="op">(</span>
     data <span class="op">=</span> <span class="va">simdata</span>,
@@ -454,7 +425,7 @@
 <h4 class="hasAnchor">
 <a href="#plotting-estimates-at-particular-compositions" class="anchor"></a>Plotting estimates at particular compositions</h4>
 <p>We now need to plot these, which can be done as follows.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/forest_plot_comp.html" class="external-link">forest_plot_comp</a></span><span class="op">(</span>composition_list <span class="op">=</span> <span class="va">list_for_plot</span>,
                  model <span class="op">=</span> <span class="va">lm_BMI</span>,
                  dataset <span class="op">=</span> <span class="va">simdata</span>,
@@ -464,10 +435,10 @@
 <span class="co">#&gt;  if this is an unrealistic det_limit, the results may be unreliable.</span>
 <span class="co">#&gt; Zeroes were imputed with detection limit </span>
 <span class="co">#&gt;  4.96e-05  (on the unitless scale) using zCompositions::lrEM</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
-<pre><code>#&gt; GRID.VP.15::forestplot_margins</code></pre>
-<p>The <code>forest_plot_comp</code> function can also be used to compare models. To do this, leave <code>model</code> at its default <code>NULL</code> value, and set <code>models_list</code> as a named list of models. For example, to compare <code>lm_BMI</code> with a model adjusted for <code>age_group</code> only and an unadjusted model:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
+<pre><code>#&gt; GRID.VP.11::forestplot_margins</code></pre>
+<p>The <code>forest_plot_comp</code> function can also be used to compare models. To do this, leave <code>model</code> at its default <code>NULL</code> value, and set <code>models_list</code> as a named list of models. For example, to compare <code>lm_BMI</code> with a model adjusted for <code>age_group</code> only and an unadjusted model (very boring in the simulated data because the correlation structure for the simulation wasn’t sufficiently rich!):</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lm_BMI_unadjusted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/comp_model.html" class="external-link">comp_model</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"linear"</span>,
          outcome <span class="op">=</span> <span class="st">"BMI"</span>,
          data <span class="op">=</span> <span class="va">simdata</span>,
@@ -523,8 +494,8 @@
 <span class="co">#&gt;  if this is an unrealistic det_limit, the results may be unreliable.</span>
 <span class="co">#&gt; Zeroes were imputed with detection limit </span>
 <span class="co">#&gt;  4.96e-05  (on the unitless scale) using zCompositions::lrEM</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
-<pre><code>#&gt; GRID.VP.18::forestplot_margins</code></pre>
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>
+<pre><code>#&gt; GRID.VP.14::forestplot_margins</code></pre>
 </div>
 </div>
 </div>
@@ -545,7 +516,7 @@
 <p>The functions above wrap all the ‘log-ratio mechanics’ of using a Compositional Data Analysis approach.</p>
 <p>There are several different kinds of transformations which can be used in order to work with compositional data (alr, ilr, clr). These transform the variables into coordinates which are capable of representing all the variation in the data. Different transformations have different pros/cons, and alr and clr can only be used for certain applications. All the functions default to ilr (isometric log ratio) transformation using so-called ‘pivot coordinates,’ which is fairly standard in the physical activity literature (and is appropriate for the applications which the other transformations are used for). If you want to learn more, see <span class="citation">(Filzmoser, Hron, and Templ 2018)</span><span class="citation">(Pawlowsky-Glahn, Egozcue, and Tolosana-Delgado 2011)</span>.</p>
 <p>The purpose of this package is not to provide this functionality, which is implemented in other R packages, such as <code>compositions</code> and <code>robCompositions</code>. (The main aim of this package is shown above, in the functions to perform standard epidemiological analyses). This functionality is reimplemented here simply to ensure that future changes to the defaults in those packages do not affect this package.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">data_ilr_impute_zeroes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/transform_comp.html" class="external-link">transform_comp</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">simdata</span>,
                                    comp_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vigorous"</span>, <span class="st">"moderate"</span>, <span class="st">"light"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span>,
                                    transformation_type <span class="op">=</span> <span class="st">"ilr"</span><span class="op">)</span>
@@ -555,41 +526,41 @@
 <span class="co">#&gt; Zeroes were imputed with detection limit </span>
 <span class="co">#&gt;  4.96e-05  (on the unitless scale) using zCompositions::lrEM</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_ilr_impute_zeroes</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#&gt;   X    sex        agegroup follow_up_time event      BMI disease all_activity</span>
-<span class="co">#&gt; 1 1 Female   Second oldest             24  TRUE 29.11778       0     2.822929</span>
-<span class="co">#&gt; 2 2   Male Second youngest             23 FALSE 26.79845       0     6.627167</span>
-<span class="co">#&gt; 3 3 Female          Middle             21 FALSE 31.36632       0     4.442044</span>
-<span class="co">#&gt; 4 4   Male          Middle             17 FALSE 32.86039       0     6.001715</span>
-<span class="co">#&gt; 5 5 Female   Second oldest             14 FALSE 34.84146       0     4.690478</span>
-<span class="co">#&gt; 6 6 Female          Middle             14 FALSE 23.18320       0     6.404334</span>
-<span class="co">#&gt;       vigorous   moderate     light sedentary     sleep</span>
-<span class="co">#&gt; 1 6.627545e-05 0.01470883 0.1028469 0.4757121 0.4066659</span>
-<span class="co">#&gt; 2 1.825529e-04 0.04694317 0.2290063 0.3714990 0.3523690</span>
-<span class="co">#&gt; 3 1.971117e-03 0.06224302 0.1208710 0.4213707 0.3935441</span>
-<span class="co">#&gt; 4 8.443280e-04 0.07580553 0.1734216 0.4107843 0.3391443</span>
-<span class="co">#&gt; 5 9.444837e-05 0.04040858 0.1549336 0.4597970 0.3447664</span>
-<span class="co">#&gt; 6 8.864994e-04 0.08454686 0.1814139 0.2489476 0.4842052</span>
-<span class="co">#&gt;   ilr_1_vigorous_vs_parts_2_to_5 ilr_2_moderate_vs_parts_3_to_5</span>
-<span class="co">#&gt; 1                      -6.786519                      -2.523223</span>
-<span class="co">#&gt; 2                      -6.231424                      -1.636546</span>
-<span class="co">#&gt; 3                      -4.076369                      -1.276028</span>
-<span class="co">#&gt; 4                      -4.920523                      -1.159234</span>
-<span class="co">#&gt; 5                      -6.742751                      -1.708819</span>
-<span class="co">#&gt; 6                      -4.879042                      -1.035944</span>
-<span class="co">#&gt;   ilr_3_light_vs_parts_4_to_5 ilr_4_sedentary_vs_part_5</span>
-<span class="co">#&gt; 1                  -1.1865007                0.11088910</span>
-<span class="co">#&gt; 2                  -0.3734355                0.03738280</span>
-<span class="co">#&gt; 3                  -0.9917403                0.04830928</span>
-<span class="co">#&gt; 4                  -0.6258620                0.13551171</span>
-<span class="co">#&gt; 5                  -0.7706337                0.20358888</span>
-<span class="co">#&gt; 6                  -0.5299835               -0.47041451</span></code></pre></div>
+<span class="co">#&gt;   X    sex        agegroup follow_up_time event      BMI disease     vigorous</span>
+<span class="co">#&gt; 1 1 Female   Second oldest             24  TRUE 29.11778       0 6.627545e-05</span>
+<span class="co">#&gt; 2 2   Male Second youngest             23 FALSE 26.79845       0 1.825529e-04</span>
+<span class="co">#&gt; 3 3 Female          Middle             21 FALSE 31.36632       0 1.971117e-03</span>
+<span class="co">#&gt; 4 4   Male          Middle             17 FALSE 32.86039       0 8.443280e-04</span>
+<span class="co">#&gt; 5 5 Female   Second oldest             14 FALSE 34.84146       0 9.444837e-05</span>
+<span class="co">#&gt; 6 6 Female          Middle             14 FALSE 23.18320       0 8.864994e-04</span>
+<span class="co">#&gt;     moderate     light sedentary     sleep ilr_1_vigorous_vs_parts_2_to_5</span>
+<span class="co">#&gt; 1 0.01470883 0.1028469 0.4757121 0.4066659                      -6.786519</span>
+<span class="co">#&gt; 2 0.04694317 0.2290063 0.3714990 0.3523690                      -6.231424</span>
+<span class="co">#&gt; 3 0.06224302 0.1208710 0.4213707 0.3935441                      -4.076369</span>
+<span class="co">#&gt; 4 0.07580553 0.1734216 0.4107843 0.3391443                      -4.920523</span>
+<span class="co">#&gt; 5 0.04040858 0.1549336 0.4597970 0.3447664                      -6.742751</span>
+<span class="co">#&gt; 6 0.08454686 0.1814139 0.2489476 0.4842052                      -4.879042</span>
+<span class="co">#&gt;   ilr_2_moderate_vs_parts_3_to_5 ilr_3_light_vs_parts_4_to_5</span>
+<span class="co">#&gt; 1                      -2.523223                  -1.1865007</span>
+<span class="co">#&gt; 2                      -1.636546                  -0.3734355</span>
+<span class="co">#&gt; 3                      -1.276028                  -0.9917403</span>
+<span class="co">#&gt; 4                      -1.159234                  -0.6258620</span>
+<span class="co">#&gt; 5                      -1.708819                  -0.7706337</span>
+<span class="co">#&gt; 6                      -1.035944                  -0.5299835</span>
+<span class="co">#&gt;   ilr_4_sedentary_vs_part_5</span>
+<span class="co">#&gt; 1                0.11088910</span>
+<span class="co">#&gt; 2                0.03738280</span>
+<span class="co">#&gt; 3                0.04830928</span>
+<span class="co">#&gt; 4                0.13551171</span>
+<span class="co">#&gt; 5                0.20358888</span>
+<span class="co">#&gt; 6               -0.47041451</span></code></pre></div>
 <p>There are also a few other things we can do with this function, like specifying a given ‘first part’ (which is useful when it comes to reporting, and is used therefore in <code>tab_coefs</code>). To learn more, run <code><a href="https://rdrr.io/pkg/epicoda/man/transform_comp.html" class="external-link">?transform_comp</a></code>.</p>
 </div>
 <div id="presenting-results-via-model-predictions" class="section level3">
 <h3 class="hasAnchor">
 <a href="#presenting-results-via-model-predictions" class="anchor"></a>Presenting results via model predictions</h3>
 <p>An alternative way to get round the challenges of interpreting the model coefficients for these models is to look at model-predicted outcomes for different input variable values (rather than model-estimated differences). The <code>plot_transfers</code> function can do this (for linear, logistic and Cox regression models) by setting <code>terms = FALSE</code>:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_transfers.html" class="external-link">plot_transfers</a></span><span class="op">(</span>from_part <span class="op">=</span> <span class="st">"sedentary"</span>,
                to_part <span class="op">=</span> <span class="st">"moderate"</span>,
                model <span class="op">=</span> <span class="va">lm_BMI</span> ,
@@ -615,7 +586,7 @@
 <span class="co">#&gt; [1] "agegroup : Middle"</span>
 <span class="co">#&gt; Please note that plotting may take some time.</span>
 <span class="co">#&gt; Warning: Removed 1 rows containing missing values (geom_hline).</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-18-1.png" width="700"></p>
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
 <div id="notes-3" class="section level4">
 <h4 class="hasAnchor">
 <a href="#notes-3" class="anchor"></a>Notes</h4>
@@ -629,7 +600,7 @@
 <div id="customising-plots" class="section level3">
 <h3 class="hasAnchor">
 <a href="#customising-plots" class="anchor"></a>Customising plots</h3>
-<p>All the plotting functions can have settings changed to make more visually attractive plots (e.g. changing text size, line size, text colour). <code>plot_transfers</code> and <code>simplex_plotting</code> are based on <code>ggplot2</code> and its extension <code>ggtern</code>.</p>
+<p>All the plotting functions can have settings changed to make more visually attractive plots (e.g. changing text size, line size, text colour). <code>plot_transfers</code> is based on <code>ggplot2</code>.</p>
 <ul>
 <li>To specify non-data aspects of the plot (e.g. line, axis and text size and colours), set the optional <code>theme</code> argument. Note that you will need the <code>ggplot2</code> package loaded in order to do this.</li>
 <li>For <code>plot_transfers</code>, to specify characteristics of the plotted prediction line, set the <code>point_specification</code> argument as a <code>geom_point</code> object.</li>
@@ -637,7 +608,7 @@
 <li>For <code>plot_transfers</code>, if the line looks ‘gappy’ (likely at the ends), increase <code>granularity</code> (and if it takes too long to plot, decrease <code>granularity</code>).</li>
 </ul>
 <p>For an extreme example of implementing some of this:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span> <span class="co"># it's easier to specify e.g. themes if ggplot2 is loaded.</span>
 <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/plot_transfers.html" class="external-link">plot_transfers</a></span><span class="op">(</span>from_part <span class="op">=</span> <span class="st">"sedentary"</span>,
                to_part <span class="op">=</span> <span class="st">"moderate"</span>,
@@ -663,9 +634,9 @@
 <span class="co">#&gt; [1] "sleep : 8.8 hr/day"</span>
 <span class="co">#&gt; fixed_values will be updated to have compositional parts fixed at the compositional mean. For technical and pragmatic reasons, use of a different reference for the compositional parts is not currently possible.</span>
 <span class="co">#&gt; Please note that plotting may take some time.</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
 <p>Slightly differently, <code>forest_plot_comp</code> is based on the <code>forestplot</code> package, so takes arguments specifying the plot in the same way as that function. There are several arguments which set particular aspects of the forest plot. In addition, any argument that the basic <code>forestplot</code> function can take, which isn’t already set, can be set as an argument to <code>forest_plot_comp</code>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gforge.se/packages/" class="external-link">forestplot</a></span><span class="op">)</span> <span class="co"># it's easier to specify options such as fpColors if the forestplot package is loaded.</span>
 <span class="co">#&gt; Loading required package: grid</span>
 <span class="co">#&gt; Loading required package: magrittr</span>
@@ -683,15 +654,15 @@
 <span class="co">#&gt;  if this is an unrealistic det_limit, the results may be unreliable.</span>
 <span class="co">#&gt; Zeroes were imputed with detection limit </span>
 <span class="co">#&gt;  4.96e-05  (on the unitless scale) using zCompositions::lrEM</span></code></pre></div>
-<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
-<pre><code>#&gt; GRID.VP.27::forestplot_margins</code></pre>
+<p><img src="3_IntroToCompositionalDataAnalysis_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<pre><code>#&gt; GRID.VP.43::forestplot_margins</code></pre>
 <p>For additional information on how to customise the functions, see the manual by running e.g. <code><a href="https://rdrr.io/pkg/epicoda/man/plot_transfers.html" class="external-link">?plot_transfers</a></code>.</p>
 </div>
 <div id="regression-modelling-further-examples" class="section level3">
 <h3 class="hasAnchor">
 <a href="#regression-modelling-further-examples" class="anchor"></a>Regression modelling: further examples</h3>
 <p>As well as linear models, we can produce logistic and Cox models:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">log_outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/comp_model.html" class="external-link">comp_model</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"logistic"</span>,
                           outcome <span class="op">=</span> <span class="st">"disease"</span>,
                           covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"agegroup"</span>, <span class="st">"sex"</span><span class="op">)</span>,
@@ -753,31 +724,31 @@
 <h3 class="hasAnchor">
 <a href="#getting-the-numbers-out-predictions-for-particular-compositions" class="anchor"></a>Getting the numbers out: predictions for particular compositions</h3>
 <p>To get the numbers out for predictions at particular compositions, we can use the <code>predict_fit_and_ci</code> function (which is wrapped in the plotting functions).This takes a data frame argument for <code>new_data</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/epicoda/man/predict_fit_and_ci.html" class="external-link">predict_fit_and_ci</a></span><span class="op">(</span>model <span class="op">=</span> <span class="va">lm_BMI</span>, dataset <span class="op">=</span> <span class="va">simdata</span>, new_data <span class="op">=</span> <span class="va">new_comp</span>, comp_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"vigorous"</span>, <span class="st">"moderate"</span>, <span class="st">"light"</span>, <span class="st">"sedentary"</span>, <span class="st">"sleep"</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; det_limit was imputed as the minimum value observed in the compositional</span>
 <span class="co">#&gt;          columns of data; </span>
 <span class="co">#&gt;  if this is an unrealistic det_limit, the results may be unreliable.</span>
 <span class="co">#&gt; Zeroes were imputed with detection limit </span>
 <span class="co">#&gt;  4.96e-05  (on the unitless scale) using zCompositions::lrEM</span>
-<span class="co">#&gt;        X  sex agegroup follow_up_time event      BMI disease all_activity</span>
-<span class="co">#&gt; 1 5000.5 Male   Middle             17 FALSE 30.19653       0     5.157997</span>
-<span class="co">#&gt;       vigorous  moderate    light sedentary     sleep</span>
-<span class="co">#&gt; 1 0.0003596193 0.0834762 0.144522 0.4133237 0.3583185</span>
-<span class="co">#&gt;   ilr_1_vigorous_vs_parts_2_to_5 ilr_2_moderate_vs_parts_3_to_5</span>
-<span class="co">#&gt; 1                      -5.678379                      -1.040789</span>
-<span class="co">#&gt;   ilr_3_light_vs_parts_4_to_5 ilr_4_sedentary_vs_part_5</span>
-<span class="co">#&gt; 1                  -0.7996725                  0.100981</span>
-<span class="co">#&gt;   fit.ilr_1_vigorous_vs_parts_2_to_5 fit.ilr_2_moderate_vs_parts_3_to_5</span>
-<span class="co">#&gt; 1                         0.02771403                         -0.2978065</span>
-<span class="co">#&gt;   fit.ilr_3_light_vs_parts_4_to_5 fit.ilr_4_sedentary_vs_part_5</span>
-<span class="co">#&gt; 1                   -2.144356e-16                  2.087514e-16</span>
-<span class="co">#&gt;   se.fit.ilr_1_vigorous_vs_parts_2_to_5 se.fit.ilr_2_moderate_vs_parts_3_to_5</span>
-<span class="co">#&gt; 1                           0.001887273                            0.02949038</span>
-<span class="co">#&gt;   se.fit.ilr_3_light_vs_parts_4_to_5 se.fit.ilr_4_sedentary_vs_part_5   df</span>
-<span class="co">#&gt; 1                       3.722775e-17                     2.056665e-17 9991</span>
-<span class="co">#&gt;   residual.scale       main        fit   lower_CI   upper_CI</span>
-<span class="co">#&gt; 1       4.053509 -0.2700925 -0.2700925 -0.3302163 -0.2099687</span></code></pre></div>
+<span class="co">#&gt;        X  sex agegroup follow_up_time event      BMI disease     vigorous</span>
+<span class="co">#&gt; 1 5000.5 Male   Middle             17 FALSE 30.19653       0 0.0003596193</span>
+<span class="co">#&gt;    moderate    light sedentary     sleep ilr_1_vigorous_vs_parts_2_to_5</span>
+<span class="co">#&gt; 1 0.0834762 0.144522 0.4133237 0.3583185                      -5.678379</span>
+<span class="co">#&gt;   ilr_2_moderate_vs_parts_3_to_5 ilr_3_light_vs_parts_4_to_5</span>
+<span class="co">#&gt; 1                      -1.040789                  -0.7996725</span>
+<span class="co">#&gt;   ilr_4_sedentary_vs_part_5 fit.ilr_1_vigorous_vs_parts_2_to_5</span>
+<span class="co">#&gt; 1                  0.100981                         0.02771403</span>
+<span class="co">#&gt;   fit.ilr_2_moderate_vs_parts_3_to_5 fit.ilr_3_light_vs_parts_4_to_5</span>
+<span class="co">#&gt; 1                         -0.2978065                   -2.144356e-16</span>
+<span class="co">#&gt;   fit.ilr_4_sedentary_vs_part_5 se.fit.ilr_1_vigorous_vs_parts_2_to_5</span>
+<span class="co">#&gt; 1                  2.087514e-16                           0.001887273</span>
+<span class="co">#&gt;   se.fit.ilr_2_moderate_vs_parts_3_to_5 se.fit.ilr_3_light_vs_parts_4_to_5</span>
+<span class="co">#&gt; 1                            0.02949038                       3.722775e-17</span>
+<span class="co">#&gt;   se.fit.ilr_4_sedentary_vs_part_5   df residual.scale       main        fit</span>
+<span class="co">#&gt; 1                     2.056665e-17 9991       4.053509 -0.2700925 -0.2700925</span>
+<span class="co">#&gt;     lower_CI   upper_CI</span>
+<span class="co">#&gt; 1 -0.3302163 -0.2099687</span></code></pre></div>
 </div>
 </div>
 </div>

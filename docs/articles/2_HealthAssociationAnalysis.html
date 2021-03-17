@@ -50,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/0_GettingSetupWithRStudio.html">Getting Set Up With RStudio</a>
+    </li>
+    <li>
       <a href="../articles/1_DataPrep.html">Data Preparation</a>
     </li>
     <li>
@@ -85,7 +88,7 @@
     
     
 <p>In this tutorial, we will go through a basic health association analysis using movement behaviour data.</p>
-<p>As well as external packages, we’ll use some helper functions we’ve prepared previously. If you want to modify them, you can find them on the reference page.</p>
+<p>As well as external packages, we’ll use some helper functions we’ve prepared previously. If you want to modify them, you can find them in the file <code>R/utils.R</code> on the GitHub page (see also intro notes).</p>
 <div id="load-in-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#load-in-data" class="anchor"></a>Load in data</h1>
@@ -96,8 +99,8 @@
 <span class="co">#&gt; Loading required package: pacman</span>
 <span class="co">#&gt; Warning: package 'pacman' was built under R version 4.0.4</span>
 <span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html" class="external-link">p_load</a></span><span class="op">(</span><span class="va">devtools</span>, <span class="va">ggtern</span>, <span class="va">ggplot2</span>, <span class="va">reshape2</span>, <span class="va">data.table</span><span class="op">)</span>
-<span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/load_all.html" class="external-link">load_all</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Loading week2DataChallenge</span>
+
+<span class="co"># If you've installed this as a package you can load helper functions like this</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">week2DataChallenge</span><span class="op">)</span>
 
 <span class="co"># We then load the data prepared in the last tutorial. </span>
@@ -308,22 +311,104 @@
 <span class="co">#&gt;   (218 observations deleted due to missingness)</span>
 <span class="co">#&gt; Multiple R-squared:  0.08386,    Adjusted R-squared:  0.08378 </span>
 <span class="co">#&gt; F-statistic:  1103 on 8 and 96368 DF,  p-value: &lt; 2.2e-16</span></code></pre></div>
-<p>We can of course look at model diagnostics as usual:</p>
+<p>We can also look at the <a href="http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/" class="external-link">model diagnostics</a> to understand more about the fit of the model:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">min_adj_lm_BMI</span><span class="op">)</span></code></pre></div>
 <p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-7-1.png" width="1152"><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-7-2.png" width="1152"><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-7-3.png" width="1152"><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-7-4.png" width="1152"> The problem with the Q-Q plot is caused by the BMI distribution - log-transforming the outcome would be a good option in this case.</p>
-<div id="next-steps-for-modelling" class="section level2">
-<h2 class="hasAnchor">
-<a href="#next-steps-for-modelling" class="anchor"></a>Next steps for modelling</h2>
+</div>
+<div id="next-steps-for-modelling" class="section level1">
+<h1 class="hasAnchor">
+<a href="#next-steps-for-modelling" class="anchor"></a>Next steps for modelling</h1>
 <p>Here we’ve looked at a very simple linear model. Next steps might be:</p>
 <ul>
 <li>adjusting for more confounders</li>
 <li>refining the definition of the exposure or looking at different exposure variables</li>
 <li>looking at different outcomes</li>
 <li>logistic regression for prevalent disease (use the <code>glm</code> function)</li>
-<li>Cox regression for incident disease (see for example the <code>survival</code> package and the <code>coxph</code> function, )</li>
+<li>Cox regression for incident disease (see for example the <code>survival</code> package and the <code>coxph</code> function)</li>
 </ul>
 </div>
+<div id="getting-started-with-cox-regression" class="section level1">
+<h1 class="hasAnchor">
+<a href="#getting-started-with-cox-regression" class="anchor"></a>Getting started with Cox regression</h1>
+<p>For example, here’s an initial Cox regression analysis associating quintiles of overall acceleration with incident ischaemic heart disease.</p>
+<p>First we need to set up the data in an appropriate format, with a follow-up time and an indicator at exit indicating whether the participant exited due to an event or due to being censored (either the participant died of another cause or study data ended before they had an event).</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Exclude participants with prevalent IHD</span>
+<span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.prevalent</span><span class="op">)</span>, <span class="st">" were excluded due to prior ischaemic heart disease"</span><span class="op">)</span>
+<span class="co">#&gt; 4912  were excluded due to prior ischaemic heart disease</span>
+<span class="va">dAll</span> <span class="op">&lt;-</span> <span class="va">dAll</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.prevalent</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span>
+
+<span class="co"># We need to process participants who died as they are censored earlier</span>
+<span class="va">death</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"J:/data_and_prep_utilities/59070_application/health_outcomes/death.txt"</span>,
+           sep <span class="op">=</span> <span class="st">"\t"</span><span class="op">)</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">&lt;-</span> <span class="fl">0</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">died</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">eid</span> <span class="op">%in%</span> <span class="va">death</span><span class="op">$</span><span class="va">eid</span> <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+<span class="va">dAll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"date_of_death"</span><span class="op">]</span><span class="op">]</span>, <span class="va">death</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"eid"</span>, <span class="st">"date_of_death"</span><span class="op">)</span><span class="op">]</span>, by <span class="op">=</span> <span class="st">"eid"</span>, all.x <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span><span class="op">)</span>, <span class="st">"participants died"</span><span class="op">)</span>
+<span class="co">#&gt; 2317 participants died</span>
+
+<span class="co"># Note censoring dates of 31.12.20 in England/Scotland and 28.02.2018 in Wales (https://biobank.ndph.ox.ac.uk/ukb/exinfo.cgi?src=Data_providers_and_dates) </span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"31/12/2020"</span>, format <span class="op">=</span> <span class="st">"%d/%m/%Y"</span><span class="op">)</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">UkBiobankAssessCent</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cardiff"</span>, <span class="st">"Wrexham"</span>, <span class="st">"Swansea"</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"28/02/2018"</span>, format <span class="op">=</span> <span class="st">"%d/%m/%Y"</span><span class="op">)</span>
+
+<span class="co"># For people who died, we need to censor them at the earliest of their date of death and overall censoring (e.g. a participant in Wales who died in 2020 should nonetheless be # censored at 28.02.2018 - if they had an IHD event in 2019 we wouldn't know about it</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">date_of_death</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">==</span><span class="fl">1</span><span class="op">]</span>, format <span class="op">=</span> <span class="st">"%d/%m/%Y"</span><span class="op">)</span><span class="op">)</span>
+
+<span class="co"># Add follow up variable (censor date for participants without an event, event date for participants with an event)</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span> <span class="op">&lt;-</span> <span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.incident</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">pmin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.incident</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span>, format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span>, <span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.incident</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+
+<span class="co"># Note event status at censoring (again, care taken as there are some instances of entries in the data after censoring)</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">IHD_at_exit</span> <span class="op">&lt;-</span> <span class="fl">0</span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">IHD_at_exit</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.incident</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease</span>, format <span class="op">=</span> <span class="st">"%Y-%m-%d"</span><span class="op">)</span> <span class="op">==</span> <span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+<span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">IHD_at_exit</span><span class="op">)</span>, <span class="st">" had incident hospital diagnosed ischaemic heart disease within the follow up period"</span><span class="op">)</span>
+<span class="co">#&gt; 3133  had incident hospital diagnosed ischaemic heart disease within the follow up period</span>
+
+<span class="co"># Calculate follow up time </span>
+<span class="va">dAll</span><span class="op">$</span><span class="va">fu_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">difftime</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">EndTimWear</span>, <span class="st">"%Y-%m-%d %H:%M:%S"</span>, tz <span class="op">=</span> <span class="st">"Europe/London"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways… I did so several times when writing this example (and don’t guarantee it’s error-free now). It is well worth inspecting your data repeatedly to check that the code is doing what you expect. [Obviously not shown here as I can’t print the data frame on the internet… Bear this in mind when using RMarkdown].</p>
+<p>We now have an event status indicator at exit and a follow-up time variable, which is enough to run a Cox model:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span>
+<span class="va">cox_model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">fu_time</span>, <span class="va">IHD_at_exit</span><span class="op">)</span> <span class="op">~</span> <span class="va">broadAgeGroup</span> <span class="op">+</span> <span class="va">sex</span> <span class="op">+</span> <span class="va">acc_quintiles</span>, <span class="va">dAll</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cox_model</span><span class="op">)</span>
+<span class="co">#&gt; Call:</span>
+<span class="co">#&gt; coxph(formula = Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + </span>
+<span class="co">#&gt;     sex + acc_quintiles, data = dAll)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;   n= 91683, number of events= 3133 </span>
+<span class="co">#&gt;    (1 observation deleted due to missingness)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                              coef exp(coef) se(coef)      z Pr(&gt;|z|)    </span>
+<span class="co">#&gt; broadAgeGroup50-59        0.69622   2.00615  0.12645  5.506 3.67e-08 ***</span>
+<span class="co">#&gt; broadAgeGroup60-69        1.40226   4.06436  0.12090 11.599  &lt; 2e-16 ***</span>
+<span class="co">#&gt; broadAgeGroup70-79        1.84127   6.30455  0.12284 14.989  &lt; 2e-16 ***</span>
+<span class="co">#&gt; sexMale                   0.77106   2.16206  0.03708 20.792  &lt; 2e-16 ***</span>
+<span class="co">#&gt; acc_quintiles(21.4,25.3] -0.17839   0.83661  0.04985 -3.578 0.000346 ***</span>
+<span class="co">#&gt; acc_quintiles(25.3,29.1] -0.34828   0.70590  0.05355 -6.504 7.84e-11 ***</span>
+<span class="co">#&gt; acc_quintiles(29.1,34.1] -0.37116   0.68993  0.05530 -6.712 1.92e-11 ***</span>
+<span class="co">#&gt; acc_quintiles(34.1,99]   -0.59452   0.55183  0.06194 -9.599  &lt; 2e-16 ***</span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;                          exp(coef) exp(-coef) lower .95 upper .95</span>
+<span class="co">#&gt; broadAgeGroup50-59          2.0061     0.4985    1.5658    2.5704</span>
+<span class="co">#&gt; broadAgeGroup60-69          4.0644     0.2460    3.2069    5.1511</span>
+<span class="co">#&gt; broadAgeGroup70-79          6.3045     0.1586    4.9555    8.0208</span>
+<span class="co">#&gt; sexMale                     2.1621     0.4625    2.0105    2.3251</span>
+<span class="co">#&gt; acc_quintiles(21.4,25.3]    0.8366     1.1953    0.7587    0.9225</span>
+<span class="co">#&gt; acc_quintiles(25.3,29.1]    0.7059     1.4166    0.6356    0.7840</span>
+<span class="co">#&gt; acc_quintiles(29.1,34.1]    0.6899     1.4494    0.6191    0.7689</span>
+<span class="co">#&gt; acc_quintiles(34.1,99]      0.5518     1.8122    0.4887    0.6231</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Concordance= 0.694  (se = 0.004 )</span>
+<span class="co">#&gt; Likelihood ratio test= 1488  on 8 df,   p=&lt;2e-16</span>
+<span class="co">#&gt; Wald test            = 1337  on 8 df,   p=&lt;2e-16</span>
+<span class="co">#&gt; Score (logrank) test = 1492  on 8 df,   p=&lt;2e-16</span></code></pre></div>
+<p>The <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp(coef)</a></code> column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the <a href="https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html" class="external-link">proportional hazards assumption</a> (see section 23.2.5 and 23.2.6).</p>
+<p>A bonus: here we’ve adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. <a href="https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx" class="external-link">Age might be a more appropriate timescale…</a></p>
+<p>Have fun! :)</p>
 </div>
   </div>
 

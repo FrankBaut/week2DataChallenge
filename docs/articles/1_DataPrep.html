@@ -50,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/0_GettingSetupWithRStudio.html">Getting Set Up With RStudio</a>
+    </li>
+    <li>
       <a href="../articles/1_DataPrep.html">Data Preparation</a>
     </li>
     <li>
@@ -98,14 +101,16 @@
 <div id="introduction-to-available-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction-to-available-data" class="anchor"></a>Introduction to available data</h1>
-<p>Different files are available from UK Biobank for different data types. We will use these files, available under <code>data_files</code>:</p>
+<p>Different files are available from UK Biobank for different data types. We will use these files, available under <code>/cdtshared/wearables/health_data_files</code>:</p>
 <ul>
 <li>
 <code>ukb41733.enc_ukb</code>: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc.</li>
 <li>
 <code>hesin_all.csv</code>: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis.</li>
 <li>
-<code>death.txt</code>: Death register data. This has one line per participant who has died, giving details of their death.</li>
+<code>death.txt</code>: Death register data. This has one line per participant who has died, giving their date of death.</li>
+<li>
+<code>death_cause.txt</code>: Death register data on cause of death (multi-line per participant).</li>
 <li>Accelerometer data, used last week.</li>
 </ul>
 </div>
@@ -119,14 +124,14 @@
 <li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv" class="external-link">Extracting a .csv file from the .enc_ukb file</a></li>
 <li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data" class="external-link">Automated pre-processing of all variables</a></li>
 </ul>
-<p>Most of the time, you can use this in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138%5D%20on%20qualifications" class="external-link">6138</a> or had multiple measures take (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html" class="external-link">change the defaults</a> to usefully use the variables.</p>
+<p>Most of the time, you can use this in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138" class="external-link">6138</a> on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html" class="external-link">change the defaults</a> to usefully use the variables.</p>
 <p>Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.</p>
 </div>
 <div id="processing-health-outcomes-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#processing-health-outcomes-data" class="anchor"></a>Processing health outcomes data</h1>
 <p>The next step is to add health outcomes data to the covariate data file. Follow <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics" class="external-link">these steps</a>.</p>
-<p>Note that this describes working with Hospital Episode Statistics (<code>hesin_all.csv</code>). You might also want to work with data on deaths</p>
+<p>Note that this describes working with Hospital Episode Statistics (<code>hesin_all.csv</code>). You will probably also want to use data on deaths, which can be found in the <code>death.txt</code> and <code>death_cause.txt</code> files.</p>
 </div>
 <div id="merging-data-files" class="section level1">
 <h1 class="hasAnchor">
@@ -172,7 +177,7 @@
 <div id="preprocessing" class="section level1">
 <h1 class="hasAnchor">
 <a href="#preprocessing" class="anchor"></a>Preprocessing</h1>
-<p>Covariate data has had some rough preprocessing already performed, corresponding to However, this is automated and imperfect. For example, some numeric variables may have special values indicating missing data, which have not been reprocessed (an example is <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=1309" class="external-link">fresh fruit intake</a>).</p>
+<p>Covariate data has had some rough preprocessing already performed, corresponding to use of the UK Biobank data dictionary. However, this is automated and imperfect. For example, some numeric variables may have special values indicating missing data, which have not been automatically processed (an example is <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=1309" class="external-link">fresh fruit intake</a>).</p>
 <p>Now is a good time to look at the variables you’re planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000" class="external-link">ethnicity variable</a> has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses.</p>
 <p>One thing you will need to do is add an age-at-accelerometer-wear variable. Here’s an example of some code to do that:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -188,7 +193,7 @@
 
 <span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_days</span><span class="op">)</span><span class="op">/</span><span class="fl">365.25</span>
 <span class="va">df</span><span class="op">$</span><span class="va">broadAgeGroup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">80</span> <span class="op">)</span>, right <span class="op">=</span> <span class="cn">FALSE</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"40-49"</span>, <span class="st">"50-59"</span>, <span class="st">"60-69"</span>, <span class="st">"70-79"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>If you’re interested in incident disease analyses, you might also want to add a follow-up time variable - i.e. the difference between the time the participant entered the study (accelerometer wear date) and when they left it (death, censoring or the event of interest).</p>
+<p>If you’re interested in incident disease analyses, you might also want to add a follow-up time variable i.e. the difference between the time the participant entered the study (accelerometer wear date) and when they left it: death, censoring (end date of study data, at which point they had not had an event) or the event of interest. The next tutorial contains an example.</p>
 <p>The <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi" class="external-link">UK Biobank Data Showcase</a> is the go-to resource for understanding variables in the data.</p>
 <p>Remember to write your prepared dataset to a file so that you can use it again!!</p>
 </div>
@@ -204,7 +209,7 @@
 <p>To find out more about particular UK Biobank variables, use the <a href="https://biobank.ndph.ox.ac.uk/ukb/" class="external-link">Data Showcase</a></p>
 <p>To find out more about UK Biobank data collection and history:</p>
 <p>In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use (<a href="https://git.fmrib.ox.ac.uk/fsl/funpack" class="external-link">an example</a>)</p>
-<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds" class="external-link">analysis platform model</a> model.</p>
+<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds" class="external-link">analysis platform model</a>.</p>
 </div>
   </div>
 
