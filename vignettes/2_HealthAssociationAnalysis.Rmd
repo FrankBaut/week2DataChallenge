@@ -217,7 +217,7 @@ We can look at the model summary:
 summary(min_adj_lm_BMI)
 ```
 
-We can of course look at model diagnostics as usual:
+We can also look at the [model diagnostics](http://www.sthda.com/english/articles/39-regression-model-diagnostics/161-linear-regression-assumptions-and-diagnostics-in-r-essentials/) to understand more about the fit of the model: 
 ```{r}
 plot(min_adj_lm_BMI)
 ```
@@ -231,5 +231,58 @@ Here we've looked at a very simple linear model. Next steps might be:
 - refining the definition of the exposure or looking at different exposure variables
 - looking at different outcomes
 - logistic regression for prevalent disease (use the `glm` function)
-- Cox regression for incident disease (see for example the `survival` package and the `coxph` function, )
+- Cox regression for incident disease (see for example the `survival` package and the `coxph` function)
+
+
+## Getting started with Cox regression
+
+For example, here's an initial Cox regression analysis associating quintiles of overall acceleration with incident ischaemic heart disease.
+```{r}
+# Exclude participants with prevalent IHD
+cat(sum(dAll$ischaemic.heart.disease.prevalent), " were excluded due to prior ischaemic heart disease")
+dAll <- dAll[dAll$ischaemic.heart.disease.prevalent == 0, ]
+
+# We need to process participants who died as they are censored earlier
+death <- read.csv("J:/data_and_prep_utilities/59070_application/health_outcomes/death.txt",
+           sep = "\t")
+dAll$died <- 0
+dAll$died[dAll$eid %in% death$eid ] <- 1
+dAll <- merge(dAll[, colnames(dAll)[colnames(dAll) != "date_of_death"]], death[, c("eid", "date_of_death")], by = "eid", all.x = TRUE)
+cat(sum(dAll$died), "participants died")
+
+# Note censoring dates of 31.12.20 in England/Scotland and 28.02.2018 in Wales (https://biobank.ndph.ox.ac.uk/ukb/exinfo.cgi?src=Data_providers_and_dates) 
+dAll$censoring <- as.Date("31/12/2020", format = "%d/%m/%Y")
+dAll$censoring[dAll$UkBiobankAssessCent %in% c("Cardiff", "Wrexham", "Swansea")] <- as.Date("28/02/2018", format = "%d/%m/%Y")
+
+# For people who died, we need to censor them at the earliest of their date of death and overall censoring (e.g. a participant with an IHD event in Wales in 2019 and who died # in 2020 should nonetheless be censored at 28.02.2018
+dAll$censoring[(dAll$died == 1)] <- pmin(dAll$censoring[dAll$died == 1], as.Date(dAll$date_of_death[dAll$died ==1], format = "%d/%m/%Y"))
+
+# Add follow up variable (censor date for participants without an event, event date for participants with an event)
+dAll$follow_up <- dAll$censoring
+IHD_group <- dAll[(dAll$ischaemic.heart.disease.incident == 1), ]
+dAll$follow_up[(dAll$ischaemic.heart.disease.incident == 1)] <-  pmin(as.Date(IHD_group$ischaemic.heart.disease, format = "%Y-%m-%d"), IHD_group$censoring)
+
+# Note event status at censoring (again, care taken as there are some instances of entries in the data after censoring)
+dAll$IHD_at_exit <- 0
+dAll$IHD_at_exit[(dAll$ischaemic.heart.disease.incident == 1) & (as.Date(dAll$ischaemic.heart.disease, format = "%Y-%m-%d") == dAll$follow_up)] <- 1
+cat(sum(dAll$IHD_at_exit), " had incident hospital diagnosed ischaemic heart disease within the follow up period")
+
+# Calculate follow up time 
+dAll$fu_time <- as.numeric(difftime(dAll$follow_up, as.Date(dAll$EndTimWear, "%Y-%m-%d %H:%M:%S", tz = "Europe/London")))
+
+```
+We now have an event status indicator at exit and a follow-up time variable, which is enough to run a Cox model: 
+```{r}
+library(survival)
+cox_model <- coxph(Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + sex + acc_quintiles, dAll)
+summary(cox_model)
+
+```
+Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
+
+A bonus: here we've adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. [Age might be a more appropriate timescale...](https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx)
+
+
+Have fun! :) 
+
 
