@@ -17,11 +17,12 @@ knitr::opts_chunk$set(
 knitr::opts_chunk$set(fig.width=12, fig.height=8)
 library(rmarkdown)
 library(knitr)
+devtools::load_all()
 ```
 
 In this tutorial, we will go through a basic health association analysis using movement behaviour data.
 
-As well as external packages, we'll use some helper functions we've prepared previously. If you want to modify them, you can find them on the reference page. 
+As well as external packages, we'll use some helper functions we've prepared previously. If you want to modify them, you can find them in the file `R/utils.R` on the GitHub page (see also intro notes).
 
 #  Load in data
 First we will load required packages, and the data we already prepared.
@@ -30,7 +31,8 @@ First we will load required packages, and the data we already prepared.
 # First we need to install packages that aren't already present. 
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(devtools, ggtern, ggplot2, reshape2, data.table)
-devtools::load_all()
+
+# If you've installed this as a package you can load helper functions like this
 library(week2DataChallenge)
 
 # We then load the data prepared in the last tutorial. 
@@ -223,7 +225,7 @@ plot(min_adj_lm_BMI)
 ```
 The problem with the Q-Q plot is caused by the BMI distribution - log-transforming the outcome would be a good option in this case.  
 
-## Next steps for modelling 
+# Next steps for modelling 
 
 Here we've looked at a very simple linear model. Next steps might be:
 
@@ -234,9 +236,11 @@ Here we've looked at a very simple linear model. Next steps might be:
 - Cox regression for incident disease (see for example the `survival` package and the `coxph` function)
 
 
-## Getting started with Cox regression
+# Getting started with Cox regression
 
 For example, here's an initial Cox regression analysis associating quintiles of overall acceleration with incident ischaemic heart disease.
+
+First we need to set up the data in an appropriate format, with a follow-up time and an indicator at exit indicating whether the participant exited due to an event or due to being censored (either the participant died of another cause or study data ended before they had an event).
 ```{r}
 # Exclude participants with prevalent IHD
 cat(sum(dAll$ischaemic.heart.disease.prevalent), " were excluded due to prior ischaemic heart disease")
@@ -269,7 +273,7 @@ cat(sum(dAll$IHD_at_exit), " had incident hospital diagnosed ischaemic heart dis
 # Calculate follow up time 
 dAll$fu_time <- as.numeric(difftime(dAll$follow_up, as.Date(dAll$EndTimWear, "%Y-%m-%d %H:%M:%S", tz = "Europe/London")))
 ```
-WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways... I did so several times when writing this example (and don't guarantee it's error-free now!). It is well worth inspecting your data repeatedly to check that the code is doing what you expect! [Obviously not shown here as I can't print the data frame on the internet! ... Bear this in mind when using RMarkdown]. 
+WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways... I did so several times when writing this example (and don't guarantee it's error-free now). It is well worth inspecting your data repeatedly to check that the code is doing what you expect. [Obviously not shown here as I can't print the data frame on the internet... Bear this in mind when using RMarkdown]. 
 
 We now have an event status indicator at exit and a follow-up time variable, which is enough to run a Cox model: 
 ```{r}
@@ -277,11 +281,10 @@ library(survival)
 cox_model <- coxph(Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + sex + acc_quintiles, dAll)
 summary(cox_model)
 ```
-Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
+The `exp(coef)` column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
 
 A bonus: here we've adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. [Age might be a more appropriate timescale...](https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx)
 
 
 Have fun! :) 
-
 

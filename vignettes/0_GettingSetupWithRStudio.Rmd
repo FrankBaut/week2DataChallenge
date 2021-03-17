@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{"Getting Set Up With RStudio"}
+  %\VignetteIndexEntry{Getting Set Up With RStudio}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -37,7 +37,7 @@ Finally, navigate to http://localhost:8787 in your browser.
 # Using functions
 To run all the analyses here, you will need to use some functions in this R package. This repository is structured as an R package, so the easiest way to use these functions is to install and load the package:
 
-```{r}
+```{r, eval=FALSE}
 install.packages("devtools")
 library(devtools)
 devtools::install_github("activityMonitoring/week2DataChallenge")
