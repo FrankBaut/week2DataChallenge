@@ -23,10 +23,11 @@ This tutorial contains:
 2.	Processing covariate data
 3.	Processing health outcomes data
 4.	Merging data files
-5.  Exclusions
-6.  Preprocessing
-7.  Troubleshooting
-8. 	Finding out more 
+5.  Participant withdrawals
+6.  Exclusions
+7.  Preprocessing
+8.  Troubleshooting
+9. 	Finding out more 
 
 # Introduction to available data
 Different files are available from UK Biobank for different data types. We will use these files, available under `/cdtshared/wearables/health_data_files`: 
@@ -35,6 +36,7 @@ Different files are available from UK Biobank for different data types. We will 
 -	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
 -	`death.txt`: Death register data. This has one line per participant who has died, giving their date of death.
 - `death_cause.txt`: Death register data on cause of death (multi-line per participant). 
+- `withdrawals.csv`: List of participants who have withdrawn from UK Biobank.
 -	Accelerometer data, used last week.
 
 # Processing covariate data
@@ -53,7 +55,9 @@ Finding this hard to use? Spotted a bug? We’d love to get feedback and to make
 # Processing health outcomes data 
 The next step is to add health outcomes data to the covariate data file. Follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics).
 
-Note that this describes working with Hospital Episode Statistics (`hesin_all.csv`). You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. 
+Note that this describes working with Hospital Episode Statistics (`hesin_all.csv`). You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. (Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in hospital episode statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES). 
+
+Censoring dates for all outcome data are the most recent available in the Data Portal (https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.
 
 # Merging data files
 You can merge data files using the ‘eid’ column. 
@@ -61,6 +65,13 @@ Note that with accelerometer data, the ‘eid’ column may need adjusting to re
 ```{r, eval=FALSE}
 acc$eid <- gsub("_90001_0_0.cwa.gz", "", acc$eid) # This line replaces the first string with the second one wherever it appears in acc$eid
 df <- merge(df, acc, by = "eid")
+```
+
+# Withdrawals 
+Participants have the right to withdraw at any time from UK Biobank. For participants who withdrew between the dataset being generated and it being used, we need to withdraw them manually. 
+```{r, eval = FALSE}
+w <- read.csv("withdrawals.csv", header = FALSE)
+df <- df[!(df$eid %in% w$V1),  ]
 ```
 
 # Exclusions 
