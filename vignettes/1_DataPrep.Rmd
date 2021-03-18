@@ -19,36 +19,44 @@ knitr::opts_chunk$set(
 This tutorial is on pre-processing for non-accelerometer data. Pre-processing is an important part of the project pipeline – we hope this will give you a lot of flexibility e.g. to decide what variables you want to work with. 
 This tutorial contains: 
 
-1.	Introduction to available data
-2.	Processing covariate data
-3.	Processing health outcomes data
-4.	Merging data files
-5.  Participant withdrawals
-6.  Exclusions
-7.  Preprocessing
-8.  Troubleshooting
+1.  Troubleshooting
+2.	Introduction to available data
+3.	Processing covariate data
+4.	Processing health outcomes data
+5.	Merging data files
+6.  Participant withdrawals
+7.  Exclusions
+8.  Preprocessing
 9. 	Finding out more 
+
+# Troubleshooting 
+Please note the repo contains lots of generic filenames, which you will need to update to your own filenames and locations.
+
+If nothing is working, don't suffer in silence: we have pre-processed data you can use. Speak to Rosemary – rosemary.walmsley@gtc.ox.ac.uk. 
 
 # Introduction to available data
 Different files are available from UK Biobank for different data types. We will use these files, available under `/cdtshared/wearables/health_data_files`: 
 
--	`ukb41733.enc_ukb`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc. 
+-	`ukb41733.csv`: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex,  BMI, smoking status etc.
 -	`hesin_all.csv`: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis. 
 -	`death.txt`: Death register data. This has one line per participant who has died, giving their date of death.
 - `death_cause.txt`: Death register data on cause of death (multi-line per participant). 
 - `withdrawals.csv`: List of participants who have withdrawn from UK Biobank.
--	Accelerometer data, used last week.
+-	`accelerometer-basic.csv`: A basic accelerometer dataset. Hopefully you will have your own version, as prepared last 
+- `dataset-with-preprocessing-done.csv`: A dataset with the steps in this tutorial (roughly) already performed, for use in the next tutorial if needed.
 
 # Processing covariate data
 We will make use of a repo that Shing and Rosemary have developed for this purpose. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data). 
 
-There are three key steps: 
+There are usually three key steps: 
 
 - [Installation](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation)
--	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv)
+-	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv) (don't do this until you've read on!)
 -	[Automated pre-processing of all variables]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data)
 
-Most of the time, you can use this in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138) on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
+As step 2 takes a long time, we've already done it using a generic set of analysis variables (corresponding to those in `analysisCols.txt` in the above repo). The output from that is the `ukb41733.csv` file in the folder - and you can go ahead and use it for step 3. If you do end up needing other variables, feel free to go back and try step 2 - the `ukb41733.enc_ukb` file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on `ukbconv` so it is executable (`chmod u+x ukbconv`)
+
+Most of the time, you can use this preprocessing pipeline in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138) on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
 
 Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
 
@@ -135,17 +143,12 @@ The [UK Biobank Data Showcase](https://biobank.ndph.ox.ac.uk/showcase/search.cgi
 
 Remember to write your prepared dataset to a file so that you can use it again!! 
 
-# Troubleshooting 
-Please note the repo contains lots of generic filenames – you need to update them to your own filename.
-
-If nothing is working: we have a pre-processed dataset you can use. Speak to Rosemary – rosemary.walmsley@gtc.ox.ac.uk. 
-
 # Finding out more
 
 To find out more about particular UK Biobank variables, use the [Data Showcase](https://biobank.ndph.ox.ac.uk/ukb/)
 
-To find out more about UK Biobank data collection and history: 
+To find out more about UK Biobank data collection and history, [this](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001779) is a good summary
 
 In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use ([an example](https://git.fmrib.ox.ac.uk/fsl/funpack))
 
-In the future, UK Biobank will be moving to an [analysis platform model](https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds).
+In the future, UK Biobank will be moving to an [Amazon Web Services model](https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds).

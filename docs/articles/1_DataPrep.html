@@ -89,6 +89,7 @@
     
 <p>This tutorial is on pre-processing for non-accelerometer data. Pre-processing is an important part of the project pipeline – we hope this will give you a lot of flexibility e.g. to decide what variables you want to work with. This tutorial contains:</p>
 <ol style="list-style-type: decimal">
+<li>Troubleshooting</li>
 <li>Introduction to available data</li>
 <li>Processing covariate data</li>
 <li>Processing health outcomes data</li>
@@ -96,16 +97,21 @@
 <li>Participant withdrawals</li>
 <li>Exclusions</li>
 <li>Preprocessing</li>
-<li>Troubleshooting</li>
 <li>Finding out more</li>
 </ol>
+<div id="troubleshooting" class="section level1">
+<h1 class="hasAnchor">
+<a href="#troubleshooting" class="anchor"></a>Troubleshooting</h1>
+<p>Please note the repo contains lots of generic filenames, which you will need to update to your own filenames and locations.</p>
+<p>If nothing is working, don’t suffer in silence: we have pre-processed data you can use. Speak to Rosemary – <a href="mailto:rosemary.walmsley@gtc.ox.ac.uk" class="email">rosemary.walmsley@gtc.ox.ac.uk</a>.</p>
+</div>
 <div id="introduction-to-available-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction-to-available-data" class="anchor"></a>Introduction to available data</h1>
 <p>Different files are available from UK Biobank for different data types. We will use these files, available under <code>/cdtshared/wearables/health_data_files</code>:</p>
 <ul>
 <li>
-<code>ukb41733.enc_ukb</code>: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, age at assessment centre visit, blood biomarkers, BMI, smoking status etc.</li>
+<code>ukb41733.csv</code>: A ‘standard’ dataset, with one line per participant. It contains most ‘straightforward’ data e.g. sex, BMI, smoking status etc.</li>
 <li>
 <code>hesin_all.csv</code>: Hospital Episode Statistics data. Each line is associated with an in-hospital diagnosis.</li>
 <li>
@@ -114,20 +120,25 @@
 <code>death_cause.txt</code>: Death register data on cause of death (multi-line per participant).</li>
 <li>
 <code>withdrawals.csv</code>: List of participants who have withdrawn from UK Biobank.</li>
-<li>Accelerometer data, used last week.</li>
+<li>
+<code>accelerometer-basic.csv</code>: A basic accelerometer dataset. Hopefully you will have your own version, as prepared last</li>
+<li>
+<code>dataset-with-preprocessing-done.csv</code>: A dataset with the steps in this tutorial (roughly) already performed, for use in the next tutorial if needed.</li>
 </ul>
 </div>
 <div id="processing-covariate-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#processing-covariate-data" class="anchor"></a>Processing covariate data</h1>
 <p>We will make use of a repo that Shing and Rosemary have developed for this purpose. <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html" class="external-link">Read the docs</a> and <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data" class="external-link">find it on GitHub</a>.</p>
-<p>There are three key steps:</p>
+<p>There are usually three key steps:</p>
 <ul>
 <li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation" class="external-link">Installation</a></li>
-<li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv" class="external-link">Extracting a .csv file from the .enc_ukb file</a></li>
+<li>
+<a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv" class="external-link">Extracting a .csv file from the .enc_ukb file</a> (don’t do this until you’ve read on!)</li>
 <li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data" class="external-link">Automated pre-processing of all variables</a></li>
 </ul>
-<p>Most of the time, you can use this in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138" class="external-link">6138</a> on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html" class="external-link">change the defaults</a> to usefully use the variables.</p>
+<p>As step 2 takes a long time, we’ve already done it using a generic set of analysis variables (corresponding to those in <code>analysisCols.txt</code> in the above repo). The output from that is the <code>ukb41733.csv</code> file in the folder - and you can go ahead and use it for step 3. If you do end up needing other variables, feel free to go back and try step 2 - the <code>ukb41733.enc_ukb</code> file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on <code>ukbconv</code> so it is executable (<code>chmod u+x ukbconv</code>)</p>
+<p>Most of the time, you can use this preprocessing pipeline in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138" class="external-link">6138</a> on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html" class="external-link">change the defaults</a> to usefully use the variables.</p>
 <p>Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.</p>
 </div>
 <div id="processing-health-outcomes-data" class="section level1">
@@ -209,19 +220,13 @@
 <p>The <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi" class="external-link">UK Biobank Data Showcase</a> is the go-to resource for understanding variables in the data.</p>
 <p>Remember to write your prepared dataset to a file so that you can use it again!!</p>
 </div>
-<div id="troubleshooting" class="section level1">
-<h1 class="hasAnchor">
-<a href="#troubleshooting" class="anchor"></a>Troubleshooting</h1>
-<p>Please note the repo contains lots of generic filenames – you need to update them to your own filename.</p>
-<p>If nothing is working: we have a pre-processed dataset you can use. Speak to Rosemary – <a href="mailto:rosemary.walmsley@gtc.ox.ac.uk" class="email">rosemary.walmsley@gtc.ox.ac.uk</a>.</p>
-</div>
 <div id="finding-out-more" class="section level1">
 <h1 class="hasAnchor">
 <a href="#finding-out-more" class="anchor"></a>Finding out more</h1>
 <p>To find out more about particular UK Biobank variables, use the <a href="https://biobank.ndph.ox.ac.uk/ukb/" class="external-link">Data Showcase</a></p>
-<p>To find out more about UK Biobank data collection and history:</p>
+<p>To find out more about UK Biobank data collection and history, <a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001779" class="external-link">this</a> is a good summary</p>
 <p>In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use (<a href="https://git.fmrib.ox.ac.uk/fsl/funpack" class="external-link">an example</a>)</p>
-<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds" class="external-link">analysis platform model</a>.</p>
+<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds" class="external-link">Amazon Web Services model</a>.</p>
 </div>
   </div>
 
