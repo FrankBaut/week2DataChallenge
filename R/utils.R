@@ -112,8 +112,8 @@ plotAverageDay <- function(data, exposurePrefix, exposureSuffix, yAxisLabel = ex
     hrPACols <- c(hrPACols , paste(exposurePrefix, hr, exposureSuffix, sep = ""))
     mean_PACols <- c(mean_PACols, as.numeric(mean(data[,hrPACols[hr+1]], na.rm = TRUE)))
     se_PACols <- c(se_PACols, as.numeric(sqrt(var(data[, hrPACols[hr+1]], na.rm = TRUE))/sqrt(nrow(data))))
-    low_PACols <- c(low_PACols, mean_PACols[hr+1] - se_PACols[hr+1])
-    high_PACols <- c(high_PACols, mean_PACols[hr+1] + se_PACols[hr+1])
+    low_PACols <- c(low_PACols, mean_PACols[hr+1] - 1.96*se_PACols[hr+1])
+    high_PACols <- c(high_PACols, mean_PACols[hr+1] + 1.96*se_PACols[hr+1])
   }
   plot <- ggplot(data = data.frame(cbind(hrs, mean_PACols, low_PACols, high_PACols)), aes(x = hrs, y = mean_PACols))+
     geom_ribbon(aes(x = hrs, ymin = low_PACols,
