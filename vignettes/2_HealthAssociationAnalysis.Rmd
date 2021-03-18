@@ -30,16 +30,16 @@ First we will load required packages, and the data we already prepared.
 ```{r load-packages}
 # First we need to install packages that aren't already present. 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(devtools, ggtern, ggplot2, reshape2, data.table)
+pacman::p_load(devtools, ggplot2, reshape2, data.table)
 
 # If you've installed this as a package you can load helper functions like this
 library(week2DataChallenge)
 
 # We then load the data prepared in the last tutorial. 
-dAll <- data.frame(fread("J:\\cdt_prep\\week2_wearables_data_challenge_2021\\week2DataChallenge\\data_and_data_prep\\ukb-data-challenge.csv")) # Substitute with the correct path! 
+dAll <- data.frame(fread("../data_and_data_prep/ukb-data-challenge.csv")) # Substitute with the correct path! 
 ```
 
-We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in a variable on the scale 
+We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in variables scaling the movement behaviour variables to the number of hours or minutes in a day: 
 ```{r final-prep}
 dAll$sex <- as.factor(dAll$Sex)
 dAll$ethnicity <- as.factor(dAll$ethnicity)
@@ -105,7 +105,7 @@ for(group in groups){
         n <- nrow(itemData)
         html <- paste(html, '<td align="center">', format(n,big.mark=","), '</td>')
 
-        # iterate through each acceleroemter outcome (i.e. each column)
+        # iterate through each accelerometer outcome (i.e. each column)
         for(outcome in outcomeCols){
             html <- paste(html, summary4tableHTML_simple(itemData[[outcome]],1))
             avg <- mean(itemData[[outcome]], na.rm=TRUE)
@@ -187,6 +187,11 @@ hist(dAll$MVPA_min_per_day, breaks=1000, xlim=c(0,100))
 #look at deciles
 quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
 ```
+We can have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day:
+```{r}
+plotAverageDay(dAll, "sleep.hourOfDay.", ".avg", "Sleep (probability)")
+
+```
 
 Now let's look descriptively at something we might expect to vary as activity status varies: BMI.
 
@@ -198,11 +203,6 @@ plotVarAndQuintile(dAll, # dataset
                   )
 ```
 
-Let's have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day:
-```{r}
-plotAverageDay(dAll, "sleep.hourOfDay.", ".avg", "Sleep (probability)")
-
-```
 
 You might want to extend this function to plot the different profiles of different groups (e.g. healthy/ unhealthy individuals, or age groups).
 
@@ -247,7 +247,7 @@ cat(sum(dAll$ischaemic.heart.disease.prevalent), " were excluded due to prior is
 dAll <- dAll[dAll$ischaemic.heart.disease.prevalent == 0, ]
 
 # We need to process participants who died as they are censored earlier
-death <- read.csv("J:/data_and_prep_utilities/59070_application/health_outcomes/death.txt",
+death <- read.csv("../data_and_data_prep/death.txt",
            sep = "\t")
 dAll$died <- 0
 dAll$died[dAll$eid %in% death$eid ] <- 1
@@ -281,7 +281,7 @@ library(survival)
 cox_model <- coxph(Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + sex + acc_quintiles, dAll)
 summary(cox_model)
 ```
-The `exp(coef)` column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
+The `exp(coef)` column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantially refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
 
 A bonus: here we've adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. [Age might be a more appropriate timescale...](https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx)
 

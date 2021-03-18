@@ -98,14 +98,14 @@
 <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://github.com/trinker/pacman" class="external-link">"pacman"</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"pacman"</span><span class="op">)</span>
 <span class="co">#&gt; Loading required package: pacman</span>
 <span class="co">#&gt; Warning: package 'pacman' was built under R version 4.0.4</span>
-<span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html" class="external-link">p_load</a></span><span class="op">(</span><span class="va">devtools</span>, <span class="va">ggtern</span>, <span class="va">ggplot2</span>, <span class="va">reshape2</span>, <span class="va">data.table</span><span class="op">)</span>
+<span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html" class="external-link">p_load</a></span><span class="op">(</span><span class="va">devtools</span>, <span class="va">ggplot2</span>, <span class="va">reshape2</span>, <span class="va">data.table</span><span class="op">)</span>
 
 <span class="co"># If you've installed this as a package you can load helper functions like this</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">week2DataChallenge</span><span class="op">)</span>
 
 <span class="co"># We then load the data prepared in the last tutorial. </span>
-<span class="va">dAll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu">fread</span><span class="op">(</span><span class="st">"J:\\cdt_prep\\week2_wearables_data_challenge_2021\\week2DataChallenge\\data_and_data_prep\\ukb-data-challenge.csv"</span><span class="op">)</span><span class="op">)</span> <span class="co"># Substitute with the correct path! </span></code></pre></div>
-<p>We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in a variable on the scale</p>
+<span class="va">dAll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu">fread</span><span class="op">(</span><span class="st">"../data_and_data_prep/ukb-data-challenge.csv"</span><span class="op">)</span><span class="op">)</span> <span class="co"># Substitute with the correct path! </span></code></pre></div>
+<p>We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in variables scaling the movement behaviour variables to the number of hours or minutes in a day:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dAll</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">Sex</span><span class="op">)</span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">ethnicity</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">ethnicity</span><span class="op">)</span>
@@ -169,7 +169,7 @@
         <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">itemData</span><span class="op">)</span>
         <span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'&lt;td align="center"&gt;'</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">n</span>,big.mark<span class="op">=</span><span class="st">","</span><span class="op">)</span>, <span class="st">'&lt;/td&gt;'</span><span class="op">)</span>
 
-        <span class="co"># iterate through each acceleroemter outcome (i.e. each column)</span>
+        <span class="co"># iterate through each accelerometer outcome (i.e. each column)</span>
         <span class="kw">for</span><span class="op">(</span><span class="va">outcome</span> <span class="kw">in</span> <span class="va">outcomeCols</span><span class="op">)</span><span class="op">{</span>
             <span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="fu"><a href="../reference/summary4tableHTML_simple.html">summary4tableHTML_simple</a></span><span class="op">(</span><span class="va">itemData</span><span class="op">[[</span><span class="va">outcome</span><span class="op">]</span><span class="op">]</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>
             <span class="va">avg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">itemData</span><span class="op">[[</span><span class="va">outcome</span><span class="op">]</span><span class="op">]</span>, na.rm<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>
@@ -260,17 +260,17 @@
 <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">acc.overall.avg</span>, prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="co">#&gt;      10%      50%      90% </span>
 <span class="co">#&gt; 18.74054 27.14073 38.45913</span></code></pre></div>
-<p>Now let’s look descriptively at something we might expect to vary as activity status varies: BMI.</p>
+<p>We can have a look at some of the machine-learned variables, to see if we believe them! Here we’ll look at plots of probability of being in a particular behaviour by time of day:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/plotAverageDay.html">plotAverageDay</a></span><span class="op">(</span><span class="va">dAll</span>, <span class="st">"sleep.hourOfDay."</span>, <span class="st">".avg"</span>, <span class="st">"Sleep (probability)"</span><span class="op">)</span></code></pre></div>
+<p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-3-1.png" width="1152"></p>
+<p>Now let’s look descriptively at something we might expect to vary as activity status varies: BMI.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotVarAndQuintile.html">plotVarAndQuintile</a></span><span class="op">(</span><span class="va">dAll</span>, <span class="co"># dataset</span>
                    <span class="st">'acc.overall.avg'</span>, <span class="co"># exposure</span>
                    <span class="st">'BMI'</span>, <span class="co"># outcome</span>
                    <span class="cn">FALSE</span> <span class="co"># [TRUE/FALSE] save plots to PDF</span>
                   <span class="op">)</span></code></pre></div>
-<p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-3-1.png" width="1152"></p>
-<p>Let’s have a look at some of the machine-learned variables, to see if we believe them! Here we’ll look at plots of probability of being in a particular behaviour by time of day:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/plotAverageDay.html">plotAverageDay</a></span><span class="op">(</span><span class="va">dAll</span>, <span class="st">"sleep.hourOfDay."</span>, <span class="st">".avg"</span>, <span class="st">"Sleep (probability)"</span><span class="op">)</span></code></pre></div>
 <p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-4-1.png" width="1152"></p>
 <p>You might want to extend this function to plot the different profiles of different groups (e.g. healthy/ unhealthy individuals, or age groups).</p>
 </div>
@@ -340,7 +340,7 @@
 <span class="va">dAll</span> <span class="op">&lt;-</span> <span class="va">dAll</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">ischaemic.heart.disease.prevalent</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span>
 
 <span class="co"># We need to process participants who died as they are censored earlier</span>
-<span class="va">death</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"J:/data_and_prep_utilities/59070_application/health_outcomes/death.txt"</span>,
+<span class="va">death</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"../data_and_data_prep/death.txt"</span>,
            sep <span class="op">=</span> <span class="st">"\t"</span><span class="op">)</span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">&lt;-</span> <span class="fl">0</span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">died</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">eid</span> <span class="op">%in%</span> <span class="va">death</span><span class="op">$</span><span class="va">eid</span> <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
@@ -406,7 +406,7 @@
 <span class="co">#&gt; Likelihood ratio test= 1488  on 8 df,   p=&lt;2e-16</span>
 <span class="co">#&gt; Wald test            = 1337  on 8 df,   p=&lt;2e-16</span>
 <span class="co">#&gt; Score (logrank) test = 1492  on 8 df,   p=&lt;2e-16</span></code></pre></div>
-<p>The <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp(coef)</a></code> column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantiall refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the <a href="https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html" class="external-link">proportional hazards assumption</a> (see section 23.2.5 and 23.2.6).</p>
+<p>The <code><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp(coef)</a></code> column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantially refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the <a href="https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html" class="external-link">proportional hazards assumption</a> (see section 23.2.5 and 23.2.6).</p>
 <p>A bonus: here we’ve adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. <a href="https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx" class="external-link">Age might be a more appropriate timescale…</a></p>
 <p>Have fun! :)</p>
 </div>
