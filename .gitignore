@@ -7,7 +7,6 @@ inst/doc
 .Rhistory
 .Rbuildignore
 data_and_data_prep/*
-docs
 *.enc_ukb
 death.txt
 death_cause.txt
