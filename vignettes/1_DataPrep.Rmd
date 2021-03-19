@@ -54,16 +54,18 @@ conda activate wearables
 If you later want to  use RMarkdown, you might have to run: `conda deactivate`. 
 
 # Processing covariate data
-This section is included to give you an idea of how to process UK Biobank data from scratch, and to allow you to flexibly go back and consider the variables you want to use (among those available in the [UK Biobank Data Showcase](https://biobank.ndph.ox.ac.uk/ukb/)). However, we have already done the steps here and saved the files for you, so there is no need to redo this. 
+This section aims to give you an idea of how to process UK Biobank data from scratch, and to allow you to flexibly go back and consider the variables you want to use (among those available in the [UK Biobank Data Showcase](https://biobank.ndph.ox.ac.uk/ukb/)). However, we have already done the steps here and saved the files for you, so you don't need to redo this. 
 
-Data from UK Biobank comes in a `.enc_ukb` file, from which particular variables are extracted. Once you have an extracted `.csv` file both the column names and the variable codings need processing. Different tools are available to help with this. We're using a repo that Shing and Rosemary have developed to get going quickly. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data).
+Data from UK Biobank comes in a `.enc_ukb` file, from which particular variables are extracted. Once you have an extracted `.csv` file both the column names and the variable codings need processing.
+
+Different tools are available to help with this. We're using a repo that Shing and Rosemary have developed to get going quickly. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data).
 There are usually three key steps: 
 
 - [Installation](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation)
 -	[Extracting a .csv file from the .enc_ukb file](https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv) (don't do this until you've read on!)
 -	[Automated pre-processing of all variables]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data)
 
-We've done step 2 using a generic (and large!) set of analysis variables, corresponding to those in `analysisCols.txt` in the above repo. The output from that is the `ukb41733.csv` file in the folder - and you can go ahead and use it for step 3. If you need other variables, feel free to go back and try step 2 - the `ukb41733.enc_ukb` file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on `ukbconv` so it is executable (`chmod u+x ukbconv`). 
+We've done step 2 using a generic (and large!) set of analysis variables, corresponding to those in `analysisCols.txt` in the above repo, and saved the output as `ukb41733.csv`. If you need other variables, feel free to go back and try step 2 - the `ukb41733.enc_ukb` file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on `ukbconv` so it is executable (`chmod u+x ukbconv`). 
 
 We've also done step 3 with the same set of columns: this is `dataset-partially-processed.csv` (which has also had some health data added). If you go back and do step 2 you'll have to do step 3 too. You might also jump in at step 3 if you want instances and array indices other than the first measurement at baseline assessment (see next paragraph). 
 
@@ -72,11 +74,13 @@ You can often use this preprocessing pipeline in a fairly blind way. However, *a
 Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
 
 # Processing health outcomes data 
-The next step is to add health outcomes data to the covariate data file. Follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics).
+This section describes health outcome data. For this section, you can use `dataset-partially-processed.csv` (or your own output from the last section). `dataset-partially-processed.csv` has already had a lot of health outcomes added (corresponding to those in `icdGroups.json` in the above repo), but you are likely to want to add more. 
 
-This describes working with Hospital Episode Statistics (`hesin_all.csv`). You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. (Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in Hospital Episode Statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES). 
+To do so, follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics), which describes working with Hospital Episode Statistics (`hesin_all.csv`).
 
-Censoring dates for all outcome data are the most recent available in the Data Portal (https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.
+You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in Hospital Episode Statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES). 
+
+Censoring dates for all outcome data are the most recent (as of 17.03.2021!) available in the Data Portal (https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.
 
 # Merging data files
 You can merge data files using the ‘eid’ column. 

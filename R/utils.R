@@ -32,7 +32,7 @@ summary4tableHTML_simple <- function(col, numDigits){
 #'
 #'  Helper method to show formatted p-value in HTML table
 #'
-#' @param col p-value
+#' @param pVal p-value
 #' @param cut Smallest p-value to be shown
 #' @return Cell for HTML summary table with formatted p-values.
 #' @export

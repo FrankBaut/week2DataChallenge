@@ -7,9 +7,9 @@
 pValueHTML_cell(pVal, cut)
 }
 \arguments{
-\item{cut}{Smallest p-value to be shown}
+\item{pVal}{p-value}
 
-\item{col}{p-value}
+\item{cut}{Smallest p-value to be shown}
 }
 \value{
 Cell for HTML summary table with formatted p-values.
