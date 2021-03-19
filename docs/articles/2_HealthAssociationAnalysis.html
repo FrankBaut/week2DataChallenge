@@ -128,18 +128,15 @@
 <div id="tables-to-describe-the-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tables-to-describe-the-data" class="anchor"></a>Tables to describe the data</h2>
-<p>The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season). It does analysis of variance, adjusted for the variables listed as confounder columns.</p>
+<p>The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season).</p>
 <p>The code might look excessively complicated, because we wanted to save it as a html output. You could do the same thing using R data frames, and then work out formatting afterwards…</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># specify groups (i.e. major row blocks)</span>
-<span class="va">groups</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"broadAgeGroup"</span>, <span class="st">"sex"</span><span class="op">)</span> <span class="co"># Fill this in with groups you want to look at</span>
+<span class="va">groups</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"sex"</span>, <span class="st">"broadAgeGroup"</span><span class="op">)</span> <span class="co"># Fill this in with groups you want to look at</span>
 
 <span class="co"># specify accelerometer outcomes (i.e. column headings)</span>
 <span class="va">outcomeCols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="st">"acc.overall.avg"</span>, <span class="st">"LIPA_hr_per_day"</span><span class="op">)</span> <span class="co"># Fill this in with a list of outcomes you want to look at</span>
 
-<span class="co"># specify analysis of variance confounder columns</span>
-<span class="va">confounderCols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"broadAgeGroup"</span>, <span class="st">"sex"</span>, <span class="st">"ethnicity"</span>, <span class="st">"smoking"</span>, <span class="st">"alcohol"</span><span class="op">)</span> <span class="co"># Fill this in with what </span>
-<span class="co">#  you want to adjust for when running the ANOVA</span>
 
 <span class="co"># specify output file name</span>
 <span class="va">outHTML</span><span class="op">&lt;-</span><span class="st">'table1.html'</span>
@@ -187,11 +184,7 @@
 <span class="co"># now calculate ANOVA p-value between subgroup "items" for each acc outcome</span>
 <span class="va">html</span><span class="op">&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'&lt;tr&gt;&lt;td&gt;p value&lt;sup&gt;A&lt;/sup&gt;&lt;/td&gt;&lt;td&gt;&lt;/td&gt;'</span><span class="op">)</span>
 <span class="kw">for</span><span class="op">(</span><span class="va">outcome</span> <span class="kw">in</span> <span class="va">outcomeCols</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">tmpconfounderCols</span> <span class="op">&lt;-</span> <span class="va">confounderCols</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="op">(</span><span class="va">group</span> <span class="op">%in%</span> <span class="va">tmpconfounderCols</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-     <span class="va">tmpconfounderCols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">group</span>, <span class="va">tmpconfounderCols</span><span class="op">)</span>
-  <span class="op">}</span>
-  <span class="va">formulaStr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">outcome</span>,<span class="st">' ~ '</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">tmpconfounderCols</span>, collapse<span class="op">=</span><span class="st">' + '</span><span class="op">)</span><span class="op">)</span>, collapse<span class="op">=</span><span class="st">''</span><span class="op">)</span>
+  <span class="va">formulaStr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">outcome</span>,<span class="st">' ~ '</span>, <span class="va">group</span><span class="op">)</span>
   <span class="va">itemANOVA</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aov.html" class="external-link">aov</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">as.formula</a></span><span class="op">(</span><span class="va">formulaStr</span><span class="op">)</span>, data<span class="op">=</span><span class="va">dAll</span><span class="op">)</span>
   
   <span class="co"># extract p-value for specific variable of interest</span>
@@ -226,8 +219,7 @@
 <span class="co">#finalise HTML table</span>
 <span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'\n&lt;/table&gt;'</span><span class="op">)</span>
 <span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'&lt;br&gt;&lt;i&gt;&lt;sup&gt;A&lt;/sup&gt; Age, sex:&lt;/i&gt; '</span><span class="op">)</span>
-<span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'Analysis of variance test used to compare metrics between groups'</span><span class="op">)</span>
-<span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'adjusting for age, sex, ethnicity, smoking status and alcohol consumption frequency.'</span><span class="op">)</span>
+<span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'One-way analysis of variance test used to compare metrics between groups'</span><span class="op">)</span>
 <span class="va">html</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">'&lt;/html&gt;'</span><span class="op">)</span>
 <span class="co"># and write html to file</span>
 <span class="fu"><a href="https://rdrr.io/r/base/write.html" class="external-link">write</a></span><span class="op">(</span><span class="va">html</span>, file <span class="op">=</span> <span class="va">outHTML</span><span class="op">)</span>
