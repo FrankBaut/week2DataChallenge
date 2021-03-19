@@ -62,7 +62,7 @@ for (variable in behaviour_vars){
 
 #  Describe and explore the data
 ## Tables to describe the data
-The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season). It does two-way analysis of variance, adjusted for the variables listed as confounder columns.
+The following code constructs a table to describe accelerometer measured attributes by conventional groupings (e.g. age, sex, self-rated health, season). It does analysis of variance, adjusted for the variables listed as confounder columns.
 
 The code might look excessively complicated, because we wanted to save it as a html output. You could do the same thing using R data frames, and then work out formatting afterwards... 
 
@@ -74,7 +74,7 @@ groups <-  c("broadAgeGroup", "sex") # Fill this in with groups you want to look
 # specify accelerometer outcomes (i.e. column headings)
 outcomeCols <- c( "acc.overall.avg", "LIPA_hr_per_day") # Fill this in with a list of outcomes you want to look at
 
-# specify two-way analysis of variance confounder columns
+# specify analysis of variance confounder columns
 confounderCols <- c("broadAgeGroup", "sex", "ethnicity", "smoking", "alcohol") # Fill this in with what 
 #  you want to adjust for when running the ANOVA
 
@@ -100,7 +100,7 @@ for(group in groups){
     html<-paste(html, '</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>')
     group.tmp <- data.frame(matrix(ncol=4, nrow=0)) #df to store outputs for subsequent effect size calculations
     colnames(group.tmp) <- c("item", "outcome", "avg", "stdev")
-    # report mean/stdev/n summary stats for each "item" in group e.g. each age categor
+    # report mean/stdev/n summary stats for each "item" in group e.g. each age category
     for(item in levels(dAll[[group]])){
         html<-paste(html, '<tr>')
         html<-paste(html, '<td>', item, '</td>')
@@ -121,7 +121,7 @@ for(group in groups){
     }
 
 
-# now calculate two-way ANOVA p-value between subgroup "items" for each acc outcome
+# now calculate ANOVA p-value between subgroup "items" for each acc outcome
 html<-paste(html, '<tr><td>p value<sup>A</sup></td><td></td>')
 for(outcome in outcomeCols){
   tmpconfounderCols <- confounderCols
@@ -130,12 +130,12 @@ for(outcome in outcomeCols){
   }
   formulaStr <- paste(c(outcome,' ~ ', paste(tmpconfounderCols, collapse=' + ')), collapse='')
   itemANOVA <- aov(as.formula(formulaStr), data=dAll)
-  # extract p-value for specific variable of interest
   
+  # extract p-value for specific variable of interest
   tmp <- as.data.frame(summary(itemANOVA)[[1]])
   groupResult <- tmp[grep(group, rownames(tmp)), "Pr(>F)"]
-   # write formatted p-value to html
   
+  # write formatted p-value to html
   html <- paste(html, pValueHTML_cell(groupResult,1e-300))        
  }
  html <- paste(html, '</tr>')
@@ -144,7 +144,7 @@ for(outcome in outcomeCols){
  html <- paste(html, "<tr><td>Cohen's d</td><td></td>")
  for(outcome in outcomeCols){
    # read relevant subgroup mean/stdev values stored from summary stats derived earlier
-  grouping <-group.tmp[(group.tmp[, "outcome"] ==outcome),]
+  grouping <- group.tmp[(group.tmp[, "outcome"] ==outcome),]
   minVal <- min(grouping['avg'])
   maxVal <- max(grouping['avg'])
   lowest <- grouping[(grouping$avg==minVal), c('avg','stdev')]
@@ -163,7 +163,7 @@ for(outcome in outcomeCols){
 #finalise HTML table
 html <- paste(html, '\n</table>')
 html <- paste(html, '<br><i><sup>A</sup> Age, sex:</i> ')
-html <- paste(html, 'Two-way analysis of variance test used to compare metrics between groups')
+html <- paste(html, 'Analysis of variance test used to compare metrics between groups')
 html <- paste(html, 'adjusting for age, sex, ethnicity, smoking status and alcohol consumption frequency.')
 html <- paste(html, '</html>')
 # and write html to file
