@@ -35,9 +35,13 @@ pacman::p_load(devtools, ggplot2, reshape2, data.table)
 # If you've installed this as a package you can load helper functions like this
 library(week2DataChallenge)
 
-# We then load the data prepared in the last tutorial. 
-dAll <- data.frame(fread("../data_and_data_prep/ukb-data-challenge.csv")) # Substitute with the correct path! 
+# We then load the data prepared in the last tutorial.
+# To do this with example data, replace the file location below with 
+# "/cdtshared/wearables/health_data_files/dataset-with-preprocessing-done.csv" 
+dAll <- data.frame(fread("../data_and_data_prep/dataset-with-preprocessing-done.csv"))
 ```
+
+Note that this dataset has had some additional preprocessing (like that described at the end of the last tutorial) of the variables we're going to use e.g. collapsing classes and removing missing data. Please make sure you've done this for the ones you're using!!
 
 We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in variables scaling the movement behaviour variables to the number of hours or minutes in a day: 
 ```{r final-prep}
@@ -247,6 +251,7 @@ cat(sum(dAll$ischaemic.heart.disease.prevalent), " were excluded due to prior is
 dAll <- dAll[dAll$ischaemic.heart.disease.prevalent == 0, ]
 
 # We need to process participants who died as they are censored earlier
+# Replace the file location below with "/cdtshared/wearables/health_data_files/death.txt"
 death <- read.csv("../data_and_data_prep/death.txt",
            sep = "\t")
 dAll$died <- 0

@@ -28,7 +28,7 @@ module load rstudio/1.2.5033-fosscuda-2019b-Java-11
 /apps/misc/rserver.sh
 ```
 Then follow the on-screen instructions to set up an ssh tunnel by running something like the following locally (numbers and username may differ):
-```
+```{r, engine = 'bash', eval = FALSE}
 ssh -L 8787:localhost:8787 username@vm.bmrc.ox.ac.uk
 ```
 Finally, navigate to http://localhost:8787 in your browser. 

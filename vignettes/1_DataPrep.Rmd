@@ -42,12 +42,19 @@ Different files are available from UK Biobank for different data types. We will 
 -	`death.txt`: Death register data. This has one line per participant who has died, giving their date of death.
 - `death_cause.txt`: Death register data on cause of death (multi-line per participant). 
 - `withdrawals.csv`: List of participants who have withdrawn from UK Biobank.
--	`accelerometer-basic.csv`: A basic accelerometer dataset. Hopefully you will have your own version, as prepared last 
+-	`accelerometer-basic.csv`: A basic accelerometer dataset. Hopefully you will have your own version, as prepared last week. 
+- `dataset-partially-processed`: A partially processed dataset, for illustrative purposes.
 - `dataset-with-preprocessing-done.csv`: A dataset with the steps in this tutorial (roughly) already performed, for use in the next tutorial if needed.
+- `ukb41733.enc_ukb`: A copy of all UK Biobank fields from the main dataset (i.e. not accelerometry, health data etc). Not needed for a basic analysis - see further info below. 
+
+Data should not ever be downloaded to your local machine. All data should be deleted at the end of the Data Challenge. 
 
 # Processing covariate data
-We will make use of a repo that Shing and Rosemary have developed for this purpose. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data). 
-
+We will make use of a repo that Shing and Rosemary have developed for this purpose. [Read the docs](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html) and [find it on GitHub]( https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data). It uses Python scripts. To ensure you have the appropriate dependencies, you need to run 
+```{r, engine='bash', eval = FALSE}
+conda activate wearables
+```
+If you later want to  use RMardown, you might have to run: `conda deactivate`. 
 There are usually three key steps: 
 
 - [Installation](https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation)
@@ -56,7 +63,7 @@ There are usually three key steps:
 
 As step 2 takes a long time, we've already done it using a generic set of analysis variables (corresponding to those in `analysisCols.txt` in the above repo). The output from that is the `ukb41733.csv` file in the folder - and you can go ahead and use it for step 3. If you do end up needing other variables, feel free to go back and try step 2 - the `ukb41733.enc_ukb` file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on `ukbconv` so it is executable (`chmod u+x ukbconv`)
 
-Most of the time, you can use this preprocessing pipeline in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and repeats. In the csv file before processing, they are named as fieldnumber.repeat.instance (e.g. 2443.1.0 for the first instance at the repeat visit). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple instances, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138) on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
+Most of the time, you can use this preprocessing pipeline in a fairly blind way. However, *a word of caution*: variables in UK Biobank come with instances and array indices. In the csv file before processing, they are named as fieldnumber.instance.array_index (e.g. 2443.1.0 for the first item ("0") at the first repeat visit ("1")). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple items, as participants could check multiple boxes (e.g. [6138](https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138) on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you'll have to [change the defaults](https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html) to usefully use the variables. 
 
 Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.
 
@@ -70,16 +77,29 @@ Censoring dates for all outcome data are the most recent available in the Data P
 # Merging data files
 You can merge data files using the ‘eid’ column. 
 Note that with accelerometer data, the ‘eid’ column may need adjusting to remove extra text e.g. 
-```{r, eval=FALSE}
-acc$eid <- gsub("_90001_0_0.cwa.gz", "", acc$eid) # This line replaces the first string with the second one wherever it appears in acc$eid
+```{r}
+# First we'll load data.table, a package that makes reading large files easier
+if (!require("data.table")) install.packages("data.table")
+library(data.table)
+
+# Then we load acc data and covariate data
+acc <- data.frame(fread("/cdtshared/wearables/health_data_files/accelerometer-basic.csv"))
+df <- data.frame(fread("/cdtshared/wearables/health_data_files/dataset-partially-processed.csv"))
+
+# Then we relabel eids to same format
+acc$eid <- gsub("_90001_0_0.gz", "", acc$eid) # This line replaces the first string with the second one wherever it appears in acc$eid
+
+# Then we merge
 df <- merge(df, acc, by = "eid")
 ```
 
 # Withdrawals 
 Participants have the right to withdraw at any time from UK Biobank. For participants who withdrew between the dataset being generated and it being used, we need to withdraw them manually. 
-```{r, eval = FALSE}
-w <- read.csv("withdrawals.csv", header = FALSE)
+```{r}
+nrow(df)
+w <- read.csv("/cdtshared/wearables/health_data_files/withdrawals.csv", header = FALSE)
 df <- df[!(df$eid %in% w$V1),  ]
+nrow(df)
 ```
 
 # Exclusions 
@@ -88,19 +108,19 @@ Before working with the data, we usually exclude some participants.
 First, we exclude participants with poor quality accelerometer data. A standard protocol for exclusions in UK Biobank is to: 
 
 - Exclude participants whose device could not be calibrated: 
-```{r, eval = FALSE}
+```{r}
 df <- df[df$quality.goodCalibration ==1, ]
 ```
 - Exclude participants who had <3 days wear or did not have wear in each hour of the 24 hour day: 
-```{r, eval = FALSE}
+```{r}
 df <- df[df$quality.goodWearTime == 1, ]
 ```
 - Exclude participants for whom >1% of values were clipped (fell outside the sensor's range) before or after calibration: 
-```{r, eval = FALSE}
+```{r}
 df <- df[(df$clipsBeforeCalibration < 0.01*df$totalReads) & (df$clipsAfterCalibration <0.01*df$totalReads) , ]
 ```
 - Exclude participants with unrealistically high average acceleration values: 
-```{r, eval = FALSE}
+```{r}
 df <- df[df$acc.overall.avg < 100, ]
 ```
 
@@ -121,7 +141,7 @@ However, this is automated and imperfect. For example, some numeric variables ma
 Now is a good time to look at the variables you're planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the [ethnicity variable](https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000) has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. 
 
 One thing you will need to do is add an age-at-accelerometer-wear variable. Here's an example of some code to do that:
-```{r, eval = FALSE}
+```{r}
 # ADD DATE OF BIRTH
 df$approx_dob <-
   as.Date(paste(df$YearOfBirth, df$MonthOfBirth, "15", sep = "-"),
