@@ -183,13 +183,13 @@ We'll also plot some of the variables to get a feel for how they're distributed.
 hist(dAll$acc.overall.avg, breaks=1000, xlim=c(0,100))
 
 #look at deciles
-quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
+quantile(dAll$acc.overall.avg, prob = seq(0.1, 0.9, by = 0.1), na.rm = TRUE)
 
 # MVPA
-hist(dAll$MVPA_min_per_day, breaks=1000, xlim=c(0,100))
+hist(dAll$MVPA_min_per_day, breaks=1000, xlim=c(0,300))
 
 #look at deciles
-quantile(dAll$acc.overall.avg, prob = c(0.10, 0.50, 0.90), na.rm = TRUE)
+quantile(dAll$MVPA_min_per_day, prob = seq(0.1, 0.9, by = 0.1), na.rm = TRUE)
 ```
 We can have a look at some of the machine-learned variables, to see if we believe them! Here we'll look at plots of probability of being in a particular behaviour by time of day:
 ```{r}

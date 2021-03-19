@@ -250,19 +250,21 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co">#look at deciles</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">acc.overall.avg</span>, prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt;      10%      50%      90% </span>
-<span class="co">#&gt; 18.74054 27.14073 38.45913</span>
+<span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">acc.overall.avg</span>, prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt;      10%      20%      30%      40%      50%      60%      70%      80% </span>
+<span class="co">#&gt; 18.74054 21.44339 23.48021 25.32063 27.14073 29.05999 31.28748 34.11230 </span>
+<span class="co">#&gt;      90% </span>
+<span class="co">#&gt; 38.45913</span>
 
 <span class="co"># MVPA</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">MVPA_min_per_day</span>, breaks<span class="op">=</span><span class="fl">1000</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">MVPA_min_per_day</span>, breaks<span class="op">=</span><span class="fl">1000</span>, xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">300</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-2-2.png" width="1152"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co">#look at deciles</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">acc.overall.avg</span>, prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="co">#&gt;      10%      50%      90% </span>
-<span class="co">#&gt; 18.74054 27.14073 38.45913</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">MVPA_min_per_day</span>, prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+<span class="co">#&gt;     10%     20%     30%     40%     50%     60%     70%     80%     90% </span>
+<span class="co">#&gt;  4.7808  9.5040 14.2128 19.2096 24.6960 30.9888 38.7216 49.0752 65.9088</span></code></pre></div>
 <p>We can have a look at some of the machine-learned variables, to see if we believe them! Here we’ll look at plots of probability of being in a particular behaviour by time of day:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/plotAverageDay.html">plotAverageDay</a></span><span class="op">(</span><span class="va">dAll</span>, <span class="st">"sleep.hourOfDay."</span>, <span class="st">".avg"</span>, <span class="st">"Sleep (probability)"</span><span class="op">)</span></code></pre></div>
