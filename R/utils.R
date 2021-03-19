@@ -115,7 +115,7 @@ plotAverageDay <- function(data, exposurePrefix, exposureSuffix, yAxisLabel = ex
     low_PACols <- c(low_PACols, mean_PACols[hr+1] - 1.96*se_PACols[hr+1])
     high_PACols <- c(high_PACols, mean_PACols[hr+1] + 1.96*se_PACols[hr+1])
   }
-  plot <- ggplot(data = data.frame(cbind(hrs, mean_PACols, low_PACols, high_PACols)), aes(x = hrs, y = mean_PACols))+
+  plot <- ggplot2::ggplot(data = data.frame(cbind(hrs, mean_PACols, low_PACols, high_PACols)), aes(x = hrs, y = mean_PACols))+
     geom_ribbon(aes(x = hrs, ymin = low_PACols,
                     ymax = high_PACols), colour = "grey")+
     geom_line()+
@@ -124,7 +124,7 @@ plotAverageDay <- function(data, exposurePrefix, exposureSuffix, yAxisLabel = ex
          x = "Hour of Day")
 
   if (!(is.null(outPng))){
-    ggsave(outPng, plot = plot, device = png())
+    ggplot2::ggsave(outPng, plot = plot, device = png())
   }
 
   return(plot)
