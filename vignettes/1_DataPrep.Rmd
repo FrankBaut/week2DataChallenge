@@ -77,7 +77,7 @@ Censoring dates for all outcome data are the most recent available in the Data P
 # Merging data files
 You can merge data files using the ‘eid’ column. 
 Note that with accelerometer data, the ‘eid’ column may need adjusting to remove extra text e.g. 
-```{r}
+```{r, eval = FALSE}
 # First we'll load data.table, a package that makes reading large files easier
 if (!require("data.table")) install.packages("data.table")
 library(data.table)
@@ -95,7 +95,7 @@ df <- merge(df, acc, by = "eid")
 
 # Withdrawals 
 Participants have the right to withdraw at any time from UK Biobank. For participants who withdrew between the dataset being generated and it being used, we need to withdraw them manually. 
-```{r}
+```{r, eval = FALSE}
 nrow(df)
 w <- read.csv("/cdtshared/wearables/health_data_files/withdrawals.csv", header = FALSE)
 df <- df[!(df$eid %in% w$V1),  ]
@@ -108,19 +108,19 @@ Before working with the data, we usually exclude some participants.
 First, we exclude participants with poor quality accelerometer data. A standard protocol for exclusions in UK Biobank is to: 
 
 - Exclude participants whose device could not be calibrated: 
-```{r}
+```{r, eval = FALSE}
 df <- df[df$quality.goodCalibration ==1, ]
 ```
 - Exclude participants who had <3 days wear or did not have wear in each hour of the 24 hour day: 
-```{r}
+```{r, eval = FALSE}
 df <- df[df$quality.goodWearTime == 1, ]
 ```
 - Exclude participants for whom >1% of values were clipped (fell outside the sensor's range) before or after calibration: 
-```{r}
+```{r, eval = FALSE}
 df <- df[(df$clipsBeforeCalibration < 0.01*df$totalReads) & (df$clipsAfterCalibration <0.01*df$totalReads) , ]
 ```
 - Exclude participants with unrealistically high average acceleration values: 
-```{r}
+```{r, eval = FALSE}
 df <- df[df$acc.overall.avg < 100, ]
 ```
 
@@ -141,7 +141,7 @@ However, this is automated and imperfect. For example, some numeric variables ma
 Now is a good time to look at the variables you're planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the [ethnicity variable](https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000) has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. 
 
 One thing you will need to do is add an age-at-accelerometer-wear variable. Here's an example of some code to do that:
-```{r}
+```{r, eval = FALSE}
 # ADD DATE OF BIRTH
 df$approx_dob <-
   as.Date(paste(df$YearOfBirth, df$MonthOfBirth, "15", sep = "-"),
