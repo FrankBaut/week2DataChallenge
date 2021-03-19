@@ -3,13 +3,15 @@
 #'  Helper method to calculate effect size using Cohen's d formula.
 #'
 #' @param lowestMean Mean in lowest group
-#' @param LowestSD SD in lowest group
+#' @param lowestSD SD in lowest group
+#' @param lowestN n in lowest group
 #' @param highestMean Mean in highest group
 #' @param highestSD SD in highest group
+#' @param highestN n in highest group
 #' @return Effect size estimate
 #' @export
-effectSize <- function(lowestMean, lowestSD, highestMean, highestSD){
-  sd <- sqrt((lowestSD*lowestSD + highestSD*highestSD)/2)
+effectSize <- function(lowestMean, lowestSD, lowestN, highestMean, highestSD, highestN){
+  sd <- sqrt((lowestSD*lowestSD*(lowestN-1)+ highestSD*highestSD*(highestN-1))/(highestN + lowestN -2))
   return ((abs(highestMean-lowestMean))/sd)
 }
 

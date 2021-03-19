@@ -108,8 +108,9 @@ for(group in groups){
             html <- paste(html, summary4tableHTML_simple(itemData[[outcome]],1))
             avg <- mean(itemData[[outcome]], na.rm=TRUE)
             stdev <- sd(itemData[[outcome]], na.rm=TRUE)
+            n <- nrow(itemData)
             group.tmp <- rbind(group.tmp, data.frame(item= item, outcome=outcome,
-                                     avg=avg, stdev=stdev))
+                                     avg=avg, stdev=stdev, n = n))
         }
         html<-paste(html, '</tr>')
     }
@@ -137,11 +138,12 @@ for(outcome in outcomeCols){
   grouping <- group.tmp[(group.tmp[, "outcome"] ==outcome),]
   minVal <- min(grouping['avg'])
   maxVal <- max(grouping['avg'])
-  lowest <- grouping[(grouping$avg==minVal), c('avg','stdev')]
-  highest <- grouping[(grouping$avg==maxVal), c('avg','stdev')]
+  lowest <- grouping[(grouping$avg==minVal), c('avg','stdev', 'n')]
+  highest <- grouping[(grouping$avg==maxVal), c('avg','stdev', 'n')]
+  print(grouping)
   
   # calculate Cohen's d effect size and format for HTML output
-  cohenD <- effectSize(lowest$avg,lowest$stdev,highest$avg,highest$stdev)
+  cohenD <- effectSize(lowest$avg,lowest$stdev, lowest$n, highest$avg,highest$stdev, highest$n)
   cohenD <- format(round(cohenD, 2), nsmall=2)
   cohenD <- sub('^(-)?0[.]', '\\1.', cohenD)
   html <- paste(html, '<td align="center">', cohenD, '</td>')

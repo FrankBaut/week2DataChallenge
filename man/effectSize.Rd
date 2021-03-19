@@ -4,16 +4,20 @@
 \alias{effectSize}
 \title{Calculate Cohen's d (effect size)}
 \usage{
-effectSize(lowestMean, lowestSD, highestMean, highestSD)
+effectSize(lowestMean, lowestSD, lowestN, highestMean, highestSD, highestN)
 }
 \arguments{
 \item{lowestMean}{Mean in lowest group}
+
+\item{lowestSD}{SD in lowest group}
+
+\item{lowestN}{n in lowest group}
 
 \item{highestMean}{Mean in highest group}
 
 \item{highestSD}{SD in highest group}
 
-\item{LowestSD}{SD in lowest group}
+\item{highestN}{n in highest group}
 }
 \value{
 Effect size estimate
