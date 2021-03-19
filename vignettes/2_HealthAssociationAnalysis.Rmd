@@ -46,9 +46,6 @@ Note that this dataset has had some additional preprocessing (like that describe
 We need to make sure some variables are factors, as subsequent code relies on that. If you change the variables you use, you might need to add some variables here. I also added in variables scaling the movement behaviour variables to the number of hours or minutes in a day: 
 ```{r final-prep}
 dAll$sex <- as.factor(dAll$Sex)
-dAll$ethnicity <- as.factor(dAll$ethnicity)
-dAll$smoking <- as.factor(dAll$smoking)
-dAll$alcohol <- as.factor(dAll$alcohol)
 dAll$broadAgeGroup <- as.factor(dAll$broadAgeGroup)
 
 behaviour_vars <- c("MVPA", "LIPA", "SB", "sleep")
