@@ -78,7 +78,7 @@ This section describes health outcome data. For this section, you can use `datas
 
 To do so, follow [these steps](https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics), which describes working with Hospital Episode Statistics (`hesin_all.csv`).
 
-You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in Hospital Episode Statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES). 
+You will probably also want to use data on deaths, which can be found in the `death.txt` and `death_cause.txt` files. Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in Hospital Episode Statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES. 
 
 Censoring dates for all outcome data are the most recent (as of 17.03.2021!) available in the Data Portal (https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.
 

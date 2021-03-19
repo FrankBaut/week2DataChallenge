@@ -233,7 +233,7 @@ The problem with the Q-Q plot is caused by the BMI distribution - log-transformi
 
 Here we've looked at a very simple linear model. Next steps might be:
 
-- adjusting for more confounders
+- adjusting for confounders (e.g. perhaps socioeconomic status affects both level of activity and BMI)
 - refining the definition of the exposure or looking at different exposure variables
 - looking at different outcomes
 - logistic regression for prevalent disease (use the `glm` function)
@@ -277,6 +277,7 @@ cat(sum(dAll$IHD_at_exit), " had incident hospital diagnosed ischaemic heart dis
 
 # Calculate follow up time 
 dAll$fu_time <- as.numeric(difftime(dAll$follow_up, as.Date(dAll$EndTimWear, "%Y-%m-%d %H:%M:%S", tz = "Europe/London")))
+hist(dAll$fu_time[(dAll$UkBiobankAssessCent %in% c("Cardiff", "Wrexham", "Swansea"))&(dAll$died == 1)])
 ```
 WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways... I did so several times when writing this example (and don't guarantee it's error-free now). It is well worth inspecting your data repeatedly to check that the code is doing what you expect. [Obviously not shown here as I can't print the data frame on the internet... Bear this in mind when using RMarkdown]. 
 
@@ -286,7 +287,7 @@ library(survival)
 cox_model <- coxph(Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + sex + acc_quintiles, dAll)
 summary(cox_model)
 ```
-The `exp(coef)` column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantially refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6).
+The `exp(coef)` column gives the hazard ratio. Not surprisingly, older age and male sex are associated with higher risk of ischaemic heart disease, whereas a higher level of activity is associated with a lower risk of ischaemic heart disease. Again, you would probably want to substantially refine this model. For example, it would be good to adjust for possible confounders, and you might also want to look into model diagnostics to understand if assumptions, such as the [proportional hazards assumption](https://thomaselove.github.io/432-notes/cox-regression-models-for-survival-data-example-1.html) (see section 23.2.5 and 23.2.6). You might want to refine the outcome definition - e.g. a different set of ICD-10 codes, or adding in ischaemic heart disease events recorded only on the death register (by using information in `death_cause.txt`).  
 
 A bonus: here we've adjusted the model for baseline age (in fact, in very crude groups) and used time-on-study as the timescale in the Cox regression analysis. This is what most introductory texts do. However, in epidemiological studies, time-on-study might not be the most relevant timescale. [Age might be a more appropriate timescale...](https://journals.lww.com/epidem/Fulltext/2012/07000/Proportional_Hazards_Regression_in_Epidemiologic.9.aspx)
 
