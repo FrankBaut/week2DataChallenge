@@ -5,7 +5,7 @@ Version: 0.0.0.9000
 Author: person("Rosemary", "Walmsley", email = "rosemary.walmsley@gtc.ox.ac.uk",
                   role = c("aut", "cre"))
 Maintainer: <rosemary.walmsley@gtc.ox.ac.uk>
-Description: This set of tutorials provides an introduction to health association analysis for using wearable device data in R. Different topics are under the 'Articles' tab. 
+Description: This set of tutorials supports health association analysis using UK Biobank accelerometry data. The [webpage](https://activitymonitoring.github.io/week2DataChallenge/) contains all the tutorials under the Articles tab. The tutorials go in order. The first three can be done from Friday afternoon onwards. The final tutorial (Compositional Data Analysis) will be covered in one of Monday's sessions. 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
