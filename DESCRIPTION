@@ -22,4 +22,5 @@ Suggests:
     rmarkdown, 
     devtools
 VignetteBuilder: knitr
+URL: https://activitymonitoring.github.io/week2DataChallenge/
 

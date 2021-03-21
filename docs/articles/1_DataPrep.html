@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -39,6 +37,12 @@
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
+<li>
+  <a href="../index.html">
+    <span class="fas fa-home fa-lg"></span>
+     
+  </a>
+</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -136,27 +140,27 @@
 <div id="processing-covariate-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#processing-covariate-data" class="anchor"></a>Processing covariate data</h1>
-<p>This section aims to give you an idea of how to process UK Biobank data from scratch, and to allow you to flexibly go back and consider the variables you want to use (among those available in the <a href="https://biobank.ndph.ox.ac.uk/ukb/" class="external-link">UK Biobank Data Showcase</a>). However, we have already done the steps here and saved the files for you, so you don’t need to redo this.</p>
+<p>This section aims to give you an idea of how to process UK Biobank data from scratch, and to allow you to flexibly go back and consider the variables you want to use (among those available in the <a href="https://biobank.ndph.ox.ac.uk/ukb/">UK Biobank Data Showcase</a>). However, we have already done the steps here and saved the files for you, so you don’t need to redo this.</p>
 <p>Data from UK Biobank comes in a <code>.enc_ukb</code> file, from which particular variables are extracted. Once you have an extracted <code>.csv</code> file both the column names and the variable codings need processing.</p>
-<p>Different tools are available to help with this. We’re using a repo that Shing and Rosemary have developed to get going quickly. <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html" class="external-link">Read the docs</a> and <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data" class="external-link">find it on GitHub</a>. There are usually three key steps:</p>
+<p>Different tools are available to help with this. We’re using a repo that Shing and Rosemary have developed to get going quickly. <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html">Read the docs</a> and <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#downloading-participant-data">find it on GitHub</a>. There are usually three key steps:</p>
 <ul>
-<li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation" class="external-link">Installation</a></li>
+<li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/started.html#installation">Installation</a></li>
 <li>
-<a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv" class="external-link">Extracting a .csv file from the .enc_ukb file</a> (don’t do this until you’ve read on!)</li>
-<li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data" class="external-link">Automated pre-processing of all variables</a></li>
+<a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/download.html#extracting-participant-data-to-csv">Extracting a .csv file from the .enc_ukb file</a> (don’t do this until you’ve read on!)</li>
+<li><a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#relabelling-and-recoding-participant-data">Automated pre-processing of all variables</a></li>
 </ul>
 <p>We’ve done step 2 using a generic (and large!) set of analysis variables, corresponding to those in <code>analysisCols.txt</code> in the above repo, and saved the output as <code>ukb41733.csv</code>. If you need other variables, feel free to go back and try step 2 - the <code>ukb41733.enc_ukb</code> file is available for this purpose. You will need to copy it to another folder to work with it (as the processing file needs to write to the folder it is in) and also change the permissions on <code>ukbconv</code> so it is executable (<code>chmod u+x ukbconv</code>).</p>
 <p>We’ve also done step 3 with the same set of columns: this is <code>dataset-partially-processed.csv</code> (which has also had some health data added). If you go back and do step 2 you’ll have to do step 3 too. You might also jump in at step 3 if you want instances and array indices other than the first measurement at baseline assessment (see next paragraph).</p>
-<p>You can often use this preprocessing pipeline in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and array indices. In the csv file before processing, they are named as fieldnumber.instance.array_index (e.g. 2443.1.0 for the first item (“0”) at the first repeat visit (“1”)). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple items, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138" class="external-link">6138</a> on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html" class="external-link">change the defaults</a> to usefully use the variables.</p>
+<p>You can often use this preprocessing pipeline in a fairly blind way. However, <em>a word of caution</em>: variables in UK Biobank come with instances and array indices. In the csv file before processing, they are named as fieldnumber.instance.array_index (e.g. 2443.1.0 for the first item (“0”) at the first repeat visit (“1”)). Repeat 1 was a resurvey among a limited number of participants, repeat 2 is the imaging revisit. Both apply only to a subset of participants. More importantly, some variables have multiple items, as participants could check multiple boxes (e.g. <a href="https://biobank.ndph.ox.ac.uk/ukb/field.cgi?id=6138">6138</a> on qualifications) or had multiple measures taken (e.g. blood pressure measurements) In these cases, you’ll have to <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/advanced.html">change the defaults</a> to usefully use the variables.</p>
 <p>Finding this hard to use? Spotted a bug? We’d love to get feedback and to make it as user-friendly as possible.</p>
 </div>
 <div id="processing-health-outcomes-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#processing-health-outcomes-data" class="anchor"></a>Processing health outcomes data</h1>
 <p>This section describes health outcome data. For this section, you can use <code>dataset-partially-processed.csv</code> (or your own output from the last section). <code>dataset-partially-processed.csv</code> has already had a lot of health outcomes added (corresponding to those in <code>icdGroups.json</code> in the above repo), but you are likely to want to add more.</p>
-<p>To do so, follow <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics" class="external-link">these steps</a>, which describes working with Hospital Episode Statistics (<code>hesin_all.csv</code>).</p>
+<p>To do so, follow <a href="https://ukb-download-and-prep-template.readthedocs.io/en/latest/core.html#adding-hospital-episode-statistics">these steps</a>, which describes working with Hospital Episode Statistics (<code>hesin_all.csv</code>).</p>
 <p>You will probably also want to use data on deaths, which can be found in the <code>death.txt</code> and <code>death_cause.txt</code> files. Even if mortality is not your outcome, if you are doing analyses of survival data, participants are censored at death for other outcomes. Also, sometimes a disease event may appear in the death register without appearing in Hospital Episode Statistics e.g. a fatal stroke occurring outside of hospital would be recorded on the death register but not in HES.</p>
-<p>Censoring dates for all outcome data are the most recent (as of 17.03.2021!) available in the Data Portal (<a href="https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates" class="external-link uri">https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates</a>) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.</p>
+<p>Censoring dates for all outcome data are the most recent (as of 17.03.2021!) available in the Data Portal (<a href="https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates" class="uri">https://biobank.ctsu.ox.ac.uk/crystal/exinfo.cgi?src=Data_providers_and_dates</a>) i.e. 31/12/20 for the death register; 31/12/20 for HES in England and Scotland, 28/02/18 for HES in Wales.</p>
 </div>
 <div id="merging-data-files" class="section level1">
 <h1 class="hasAnchor">
@@ -164,28 +168,28 @@
 <p>You can merge data files using the ‘eid’ column. Note that with accelerometer data, the ‘eid’ column may need adjusting to remove extra text e.g. </p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># First we'll load data.table, a package that makes reading large files easier</span>
-<span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com" class="external-link">"data.table"</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"data.table"</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span>
+<span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">require</a></span><span class="op">(</span><span class="st"><a href="https://r-datatable.com">"data.table"</a></span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">"data.table"</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com">data.table</a></span><span class="op">)</span>
 
 <span class="co"># Then we load acc data and covariate data</span>
-<span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/accelerometer-basic.csv"</span><span class="op">)</span><span class="op">)</span>
-<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/dataset-partially-processed.csv"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">acc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">fread</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/accelerometer-basic.csv"</span><span class="op">)</span><span class="op">)</span>
+<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html">fread</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/dataset-partially-processed.csv"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Then we relabel eids to same format</span>
-<span class="va">acc</span><span class="op">$</span><span class="va">eid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"_90001_0_0.gz"</span>, <span class="st">""</span>, <span class="va">acc</span><span class="op">$</span><span class="va">eid</span><span class="op">)</span> <span class="co"># This line replaces the first string with the second one wherever it appears in acc$eid</span>
+<span class="va">acc</span><span class="op">$</span><span class="va">eid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"_90001_0_0.gz"</span>, <span class="st">""</span>, <span class="va">acc</span><span class="op">$</span><span class="va">eid</span><span class="op">)</span> <span class="co"># This line replaces the first string with the second one wherever it appears in acc$eid</span>
 
 <span class="co"># Then we merge</span>
-<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">acc</span>, by <span class="op">=</span> <span class="st">"eid"</span><span class="op">)</span></code></pre></div>
+<span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/merge.html">merge</a></span><span class="op">(</span><span class="va">df</span>, <span class="va">acc</span>, by <span class="op">=</span> <span class="st">"eid"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="withdrawals" class="section level1">
 <h1 class="hasAnchor">
 <a href="#withdrawals" class="anchor"></a>Withdrawals</h1>
 <p>Participants have the right to withdraw at any time from UK Biobank. For participants who withdrew between the dataset being generated and it being used, we need to withdraw them manually.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
-<span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/withdrawals.csv"</span>, header <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>
+<span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"/cdtshared/wearables/health_data_files/withdrawals.csv"</span>, header <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">eid</span> <span class="op">%in%</span> <span class="va">w</span><span class="op">$</span><span class="va">V1</span><span class="op">)</span>,  <span class="op">]</span>
-<span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="exclusions" class="section level1">
 <h1 class="hasAnchor">
@@ -212,7 +216,7 @@
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span><span class="va">df</span><span class="op">$</span><span class="va">acc.overall.avg</span> <span class="op">&lt;</span> <span class="fl">100</span>, <span class="op">]</span></code></pre></div>
-<p>If you’re interested in finding out more <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0169649" class="external-link">this is a good reference</a>. There is a lot of literature on accelerometer data quality!</p>
+<p>If you’re interested in finding out more <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0169649">this is a good reference</a>. There is a lot of literature on accelerometer data quality!</p>
 <p>There are two other types of exclusions you may wish to make, depending on your planned analysis. These can be done now, or later:</p>
 <ul>
 <li>Health-related exclusions. For example, if you are analysing incident disease, you may wish to exclude people who had prevalent disease at the time they wore the accelerometer.</li>
@@ -223,33 +227,33 @@
 <div id="preprocessing" class="section level1">
 <h1 class="hasAnchor">
 <a href="#preprocessing" class="anchor"></a>Preprocessing</h1>
-<p>As described above the data has had some rough preprocessing already performed, corresponding to use of the UK Biobank data dictionary to recode variables. However, this is automated and imperfect. For example, some numeric variables may have special values indicating missing data, which have not been automatically processed (an example is <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=1309" class="external-link">fresh fruit intake</a>).</p>
-<p>Now is a good time to look at the variables you’re planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000" class="external-link">ethnicity variable</a> has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. Spending time understanding the data in detail now will not be wasted!</p>
+<p>As described above the data has had some rough preprocessing already performed, corresponding to use of the UK Biobank data dictionary to recode variables. However, this is automated and imperfect. For example, some numeric variables may have special values indicating missing data, which have not been automatically processed (an example is <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=1309">fresh fruit intake</a>).</p>
+<p>Now is a good time to look at the variables you’re planning to use in more detail, understand their distribution, recode any values you wish to recode, and change groupings as required. For example, the <a href="https://biobank.ndph.ox.ac.uk/showcase/field.cgi?id=21000">ethnicity variable</a> has many distinctions, some of which apply to very few participants, so you may wish to recode it for statistical analyses. Spending time understanding the data in detail now will not be wasted!</p>
 <p>One thing you will need to do is add an age-at-accelerometer-wear variable. Here’s an example of some code to do that:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># ADD DATE OF BIRTH</span>
 <span class="va">df</span><span class="op">$</span><span class="va">approx_dob</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">YearOfBirth</span>, <span class="va">df</span><span class="op">$</span><span class="va">MonthOfBirth</span>, <span class="st">"15"</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">YearOfBirth</span>, <span class="va">df</span><span class="op">$</span><span class="va">MonthOfBirth</span>, <span class="st">"15"</span>, sep <span class="op">=</span> <span class="st">"-"</span><span class="op">)</span>,
           <span class="st">"%Y-%B-%d"</span><span class="op">)</span>
 
 <span class="va">df</span><span class="op">$</span><span class="va">age_entry_days</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">difftime</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">EndTimWear</span>, <span class="st">"%Y-%m-%d %H:%M:%S"</span>, tz <span class="op">=</span> <span class="st">"Europe/London"</span><span class="op">)</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/difftime.html">difftime</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">EndTimWear</span>, <span class="st">"%Y-%m-%d %H:%M:%S"</span>, tz <span class="op">=</span> <span class="st">"Europe/London"</span><span class="op">)</span>, 
            <span class="va">df</span><span class="op">$</span><span class="va">approx_dob</span>,
            units <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span>
 
-<span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_days</span><span class="op">)</span><span class="op">/</span><span class="fl">365.25</span>
-<span class="va">df</span><span class="op">$</span><span class="va">broadAgeGroup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">80</span> <span class="op">)</span>, right <span class="op">=</span> <span class="cn">FALSE</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"40-49"</span>, <span class="st">"50-59"</span>, <span class="st">"60-69"</span>, <span class="st">"70-79"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_days</span><span class="op">)</span><span class="op">/</span><span class="fl">365.25</span>
+<span class="va">df</span><span class="op">$</span><span class="va">broadAgeGroup</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html">cut</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age_entry_years</span>, breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">80</span> <span class="op">)</span>, right <span class="op">=</span> <span class="cn">FALSE</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"40-49"</span>, <span class="st">"50-59"</span>, <span class="st">"60-69"</span>, <span class="st">"70-79"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>If you’re interested in incident disease analyses, you might also want to add a follow-up time variable i.e. the difference between the time the participant entered the study (accelerometer wear date) and when they left it: death, censoring (end date of study data, at which point they had not had an event) or the event of interest. The next tutorial contains an example.</p>
-<p>The <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi" class="external-link">UK Biobank Data Showcase</a> is the go-to resource for understanding variables in the data.</p>
+<p>The <a href="https://biobank.ndph.ox.ac.uk/showcase/search.cgi">UK Biobank Data Showcase</a> is the go-to resource for understanding variables in the data.</p>
 <p>Remember to write your prepared dataset to a file so that you can use it again!!</p>
 </div>
 <div id="finding-out-more" class="section level1">
 <h1 class="hasAnchor">
 <a href="#finding-out-more" class="anchor"></a>Finding out more</h1>
-<p>To find out more about particular UK Biobank variables, use the <a href="https://biobank.ndph.ox.ac.uk/ukb/" class="external-link">Data Showcase</a></p>
-<p>To find out more about UK Biobank data collection and history, <a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001779" class="external-link">this</a> is a good summary</p>
-<p>In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use (<a href="https://git.fmrib.ox.ac.uk/fsl/funpack" class="external-link">an example</a>)</p>
-<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds" class="external-link">Amazon Web Services model</a>.</p>
+<p>To find out more about particular UK Biobank variables, use the <a href="https://biobank.ndph.ox.ac.uk/ukb/">Data Showcase</a></p>
+<p>To find out more about UK Biobank data collection and history, <a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001779">this</a> is a good summary</p>
+<p>In addition to what we’ve shared here, UK Biobank is an open resource and several other open-source tools are available to support its use (<a href="https://git.fmrib.ox.ac.uk/fsl/funpack">an example</a>)</p>
+<p>In the future, UK Biobank will be moving to an <a href="https://www.ukbiobank.ac.uk/learn-more-about-uk-biobank/news/uk-biobank-creates-cloud-based-health-data-analysis-platform-to-unleash-the-imaginations-of-the-world-s-best-scientific-minds">Amazon Web Services model</a>.</p>
 </div>
   </div>
 
@@ -264,13 +268,11 @@
 
 
       <footer><div class="copyright">
-  <p></p>
-<p>Developed by .</p>
+  <p>Developed by .</p>
 </div>
 
 <div class="pkgdown">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>
@@ -278,8 +280,6 @@
 
   
 
-
-  
 
   </body>
 </html>
