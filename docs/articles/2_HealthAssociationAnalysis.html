@@ -359,11 +359,12 @@
 <span class="co"># Replace the file location below with "/cdtshared/wearables/health_data_files/death.txt"</span>
 <span class="va">death</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span><span class="st">"../data_and_data_prep/death.txt"</span>,
            sep <span class="op">=</span> <span class="st">"\t"</span><span class="op">)</span>
+<span class="va">death</span> <span class="op">&lt;-</span> <span class="va">death</span><span class="op">[</span><span class="va">death</span><span class="op">$</span><span class="va">ins_index</span> <span class="op">==</span> <span class="fl">0</span>, <span class="op">]</span>  <span class="co">#Keep just one record per participant (a very small number of participants have duplicate records)</span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">&lt;-</span> <span class="fl">0</span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">died</span><span class="op">[</span><span class="va">dAll</span><span class="op">$</span><span class="va">eid</span> <span class="op">%in%</span> <span class="va">death</span><span class="op">$</span><span class="va">eid</span> <span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span>
 <span class="va">dAll</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/merge.html">merge</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">)</span> <span class="op">!=</span> <span class="st">"date_of_death"</span><span class="op">]</span><span class="op">]</span>, <span class="va">death</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"eid"</span>, <span class="st">"date_of_death"</span><span class="op">)</span><span class="op">]</span>, by <span class="op">=</span> <span class="st">"eid"</span>, all.x <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span><span class="op">)</span>, <span class="st">"participants died"</span><span class="op">)</span>
-<span class="co">#&gt; 2317 participants died</span>
+<span class="co">#&gt; 2316 participants died</span>
 
 <span class="co"># Note censoring dates of 31.12.20 in England/Scotland and 28.02.2018 in Wales (https://biobank.ndph.ox.ac.uk/ukb/exinfo.cgi?src=Data_providers_and_dates) </span>
 <span class="va">dAll</span><span class="op">$</span><span class="va">censoring</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="st">"31/12/2020"</span>, format <span class="op">=</span> <span class="st">"%d/%m/%Y"</span><span class="op">)</span>
@@ -383,9 +384,8 @@
 <span class="co">#&gt; 3133  had incident hospital diagnosed ischaemic heart disease within the follow up period</span>
 
 <span class="co"># Calculate follow up time </span>
-<span class="va">dAll</span><span class="op">$</span><span class="va">fu_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html">difftime</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">EndTimWear</span>, <span class="st">"%Y-%m-%d %H:%M:%S"</span>, tz <span class="op">=</span> <span class="st">"Europe/London"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/hist.html">hist</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">fu_time</span><span class="op">[</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">UkBiobankAssessCent</span> <span class="op">%in%</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Cardiff"</span>, <span class="st">"Wrexham"</span>, <span class="st">"Swansea"</span><span class="op">)</span><span class="op">)</span><span class="op">&amp;</span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">died</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p><img src="2_HealthAssociationAnalysis_files/figure-html/unnamed-chunk-8-1.png" width="1152"> WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways… I did so several times when writing this example (and don’t guarantee it’s error-free now). It is well worth inspecting your data repeatedly to check that the code is doing what you expect. [Obviously not shown here as I can’t print the data frame on the internet… Bear this in mind when using RMarkdown].</p>
+<span class="va">dAll</span><span class="op">$</span><span class="va">fu_time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/difftime.html">difftime</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">follow_up</span>, <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span><span class="op">(</span><span class="va">dAll</span><span class="op">$</span><span class="va">EndTimWear</span>, <span class="st">"%Y-%m-%d %H:%M:%S"</span>, tz <span class="op">=</span> <span class="st">"Europe/London"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>WARNING: when working with date data, especially when dates are only present for some participants, it is very easy to write code which behaves in strange ways… I did so several times when writing this example (and don’t guarantee it’s error-free now). It is well worth inspecting your data repeatedly to check that the code is doing what you expect. [Obviously not shown here as I can’t print the data frame on the internet… Bear this in mind when using RMarkdown].</p>
 <p>We now have an event status indicator at exit and a follow-up time variable, which is enough to run a Cox model:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival">survival</a></span><span class="op">)</span>
@@ -395,16 +395,16 @@
 <span class="co">#&gt; coxph(formula = Surv(fu_time, IHD_at_exit) ~ broadAgeGroup + </span>
 <span class="co">#&gt;     sex + acc_quintiles, data = dAll)</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt;   n= 91679, number of events= 3133 </span>
+<span class="co">#&gt;   n= 91678, number of events= 3133 </span>
 <span class="co">#&gt;    (1 observation deleted due to missingness)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;                              coef exp(coef) se(coef)      z Pr(&gt;|z|)    </span>
 <span class="co">#&gt; broadAgeGroup50-59        0.69595   2.00561  0.12645  5.504 3.72e-08 ***</span>
 <span class="co">#&gt; broadAgeGroup60-69        1.40200   4.06331  0.12090 11.597  &lt; 2e-16 ***</span>
-<span class="co">#&gt; broadAgeGroup70-79        1.84106   6.30320  0.12285 14.987  &lt; 2e-16 ***</span>
-<span class="co">#&gt; sexMale                   0.77115   2.16225  0.03708 20.795  &lt; 2e-16 ***</span>
+<span class="co">#&gt; broadAgeGroup70-79        1.84106   6.30324  0.12285 14.987  &lt; 2e-16 ***</span>
+<span class="co">#&gt; sexMale                   0.77115   2.16224  0.03708 20.794  &lt; 2e-16 ***</span>
 <span class="co">#&gt; acc_quintiles(21.4,25.3] -0.17823   0.83675  0.04985 -3.575  0.00035 ***</span>
-<span class="co">#&gt; acc_quintiles(25.3,29.1] -0.34818   0.70597  0.05355 -6.502 7.93e-11 ***</span>
+<span class="co">#&gt; acc_quintiles(25.3,29.1] -0.34817   0.70598  0.05355 -6.502 7.94e-11 ***</span>
 <span class="co">#&gt; acc_quintiles(29.1,34.1] -0.37105   0.69001  0.05530 -6.710 1.94e-11 ***</span>
 <span class="co">#&gt; acc_quintiles(34.1,99]   -0.59431   0.55194  0.06194 -9.595  &lt; 2e-16 ***</span>
 <span class="co">#&gt; ---</span>
@@ -413,8 +413,8 @@
 <span class="co">#&gt;                          exp(coef) exp(-coef) lower .95 upper .95</span>
 <span class="co">#&gt; broadAgeGroup50-59          2.0056     0.4986    1.5654    2.5697</span>
 <span class="co">#&gt; broadAgeGroup60-69          4.0633     0.2461    3.2061    5.1498</span>
-<span class="co">#&gt; broadAgeGroup70-79          6.3032     0.1586    4.9544    8.0192</span>
-<span class="co">#&gt; sexMale                     2.1623     0.4625    2.0107    2.3253</span>
+<span class="co">#&gt; broadAgeGroup70-79          6.3032     0.1586    4.9545    8.0192</span>
+<span class="co">#&gt; sexMale                     2.1622     0.4625    2.0107    2.3253</span>
 <span class="co">#&gt; acc_quintiles(21.4,25.3]    0.8367     1.1951    0.7589    0.9226</span>
 <span class="co">#&gt; acc_quintiles(25.3,29.1]    0.7060     1.4165    0.6356    0.7841</span>
 <span class="co">#&gt; acc_quintiles(29.1,34.1]    0.6900     1.4493    0.6191    0.7690</span>
